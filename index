@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PM6750 Patient Monitor Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #151d2f;
+      --border: #24324f;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --ecg-color: #22c55e;
+      --spo2-color: #06b6d4;
+      --resp-color: #eab308;
+      --nibp-color: #ef4444;
+      --temp-color: #ec4899;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); padding: 16px; }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    button {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    button:hover { background: #1d4ed8; }
+    button.danger { background: #dc2626; }
+    button.danger:hover { background: #b91c1c; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .val-large { font-size: 40px; font-weight: 800; line-height: 1; }
+    .val-sub { font-size: 14px; color: var(--text-muted); margin-top: 6px; }
+    .val-unit { font-size: 14px; font-weight: normal; color: var(--text-muted); }
+
+    .chart-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    .chart-header { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; }
+    canvas { width: 100%; height: 130px; display: block; background: #070a10; border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1 style="font-size: 20px;">Berry PM6750 Patient Monitor</h1>
+      <span id="connStatus" style="color: #ef4444; font-size: 13px;">● Disconnected</span>
+    </div>
+    <div class="btn-group">
+      <button id="btnConnectSerial">Connect Bluetooth (Serial / SPP)</button>
+      <button id="btnConnectBle">Connect BLE</button>
+      <button id="btnDisconnect" class="danger" disabled>Disconnect</button>
+    </div>
+  </header>
+
+  <!-- Vital Signs Summary Cards -->
+  <div class="grid">
+    <!-- Heart Rate & ECG Status -->
+    <div class="card" style="border-left: 4px solid var(--ecg-color);">
+      <div>
+        <div class="card-title" style="color: var(--ecg-color);">ECG / Heart Rate</div>
+        <div class="val-large" id="valHR">-- <span class="val-unit">bpm</span></div>
+      </div>
+      <div class="val-sub" id="ecgDetails">Arrhythmia: -- | Lead: Normal</div>
+    </div>
+
+    <!-- SpO2 & PR -->
+    <div class="card" style="border-left: 4px solid var(--spo2-color);">
+      <div>
+        <div class="card-title" style="color: var(--spo2-color);">SpO₂ & Pulse Rate</div>
+        <div class="val-large" id="valSpO2">-- <span class="val-unit">%</span></div>
+      </div>
+      <div class="val-sub" id="spo2Details">Pulse Rate: -- bpm | Status: Normal</div>
+    </div>
+
+    <!-- Blood Pressure -->
+    <div class="card" style="border-left: 4px solid var(--nibp-color);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+          <div class="card-title" style="color: var(--nibp-color);">NIBP (Sys / Dia)</div>
+          <div class="val-large" id="valNIBP">--/-- <span class="val-unit">mmHg</span></div>
+        </div>
+        <button id="btnNibpTrigger" style="padding: 4px 10px; font-size: 12px;" disabled>Start NIBP</button>
+      </div>
+      <div class="val-sub" id="nibpDetails">Mean: -- | Cuff: 0 mmHg | Idle</div>
+    </div>
+
+    <!-- Temp & Respiration Rate -->
+    <div class="card" style="border-left: 4px solid var(--temp-color);">
+      <div>
+        <div class="card-title" style="color: var(--temp-color);">Temperature & RESP</div>
+        <div class="val-large" id="valTemp">--.- <span class="val-unit">°C</span></div>
+      </div>
+      <div class="val-sub" id="respDetails">Resp Rate: -- rpm</div>
+    </div>
+  </div>
+
+  <!-- Realtime Waveform Displays -->
+  <div class="chart-container">
+    <div class="chart-header">
+      <span style="color: var(--ecg-color); font-weight: 600;">ECG Lead II</span>
+      <span style="font-size: 12px; color: var(--text-muted);">250 Hz</span>
+    </div>
+    <canvas id="ecgCanvas"></canvas>
+  </div>
+
+  <div class="chart-container">
+    <div class="chart-header">
+      <span style="color: var(--spo2-color); font-weight: 600;">SpO₂ Plethysmograph</span>
+      <span style="font-size: 12px; color: var(--text-muted);">50 Hz</span>
+    </div>
+    <canvas id="spo2Canvas"></canvas>
+  </div>
+
+  <script>
+    // --- PM6750 Protocol Constants & Dictionaries ---
+    const ARR_CODES = [
+      "ANALYSIS", "NORMAL", "ASYSTOLE", "VFIB/VTAC", "RONT",
+      "MULTI PVCS", "COUPLE PVCS", "PVC", "BIGEMINY", "TRIGEMINY",
+      "TACHYCARDIA", "BRADYCARDIA", "MISSED BEATS"
+    ];
+
+    const NIBP_RESULTS = [
+      "Finished", "Measuring...", "Stopped", "Over-pressure",
+      "Loose/Unattached", "Timeout", "Error", "Motion Interference",
+      "Out of range", "Initializing...", "Ready"
+    ];
+
+    const SPO2_STATUS = [
+      "Normal", "Sensor Off", "No Finger", "Searching Pulse", "Search Timeout"
+    ];
+
+    // --- State & Stream Management ---
+    let transportType = null;
+    let serialPort = null, serialReader = null, serialWriter = null;
+    let bleDevice = null, bleTxChar = null, bleRxChar = null;
+    let isNibpRunning = false;
+
+    // Ring buffer state for canvas charts
+    const ecgData = new Array(600).fill(128);
+    const spo2Data = new Array(300).fill(50);
+
+    // Frame parser buffer
+    let rawBuffer = [];
+
+    // --- Checksum & Frame Construction ---
+    // Protocol checksum: ~(N + A1 + ... + An) & 0xFF
+    function calculateChecksum(len, content) {
+      let sum = len;
+      for (let i = 0; i < content.length; i++) {
+        sum += content[i];
+      }
+      return (~sum) & 0xFF;
+    }
+
+    function createCommand(cmdId, param) {
+      const len = 4; // Length byte = Content length (2) + 2
+      const content = [cmdId, param];
+      const sum = calculateChecksum(len, content);
+      return new Uint8Array([0x55, 0xAA, len, cmdId, param, sum]);
+    }
+
+    async function sendPacket(bytes) {
+      try {
+        if (transportType === 'serial' && serialWriter) {
+          await serialWriter.write(bytes);
+        } else if (transportType === 'ble' && bleTxChar) {
+          await bleTxChar.writeValueWithoutResponse(bytes);
+        }
+      } catch (err) {
+        console.error("Transmission failed:", err);
+      }
+    }
+
+    // --- Stream Parser ---
+    function processIncomingBytes(chunk) {
+      for (let i = 0; i < chunk.length; i++) {
+        rawBuffer.push(chunk[i]);
+      }
+
+      while (rawBuffer.length >= 4) {
+        // Find Header: 0x55 0xAA
+        if (rawBuffer[0] !== 0x55 || rawBuffer[1] !== 0xAA) {
+          rawBuffer.shift();
+          continue;
+        }
+
+        const lenN = rawBuffer[2];
+        const fullFrameSize = lenN + 3; // 2 bytes header + 1 byte len + (lenN) bytes [content + sum]
+
+        if (rawBuffer.length < fullFrameSize) {
+          break; // Incomplete frame, await more bytes
+        }
+
+        const frame = rawBuffer.slice(0, fullFrameSize);
+        const content = frame.slice(3, fullFrameSize - 1);
+        const receivedSum = frame[fullFrameSize - 1];
+        const expectedSum = calculateChecksum(lenN, content);
+
+        if (receivedSum === expectedSum) {
+          handlePacket(content);
+          rawBuffer.splice(0, fullFrameSize);
+        } else {
+          // Checksum mismatch: discard header byte and resynchronize
+          rawBuffer.shift();
+        }
+      }
+    }
+
+    // --- Packet Handling ---
+    function handlePacket(content) {
+      const type = content[0];
+
+      switch(type) {
+        case 0x01: { // ECG Waveform (Lead II = content[2])
+          const leadII = content[2];
+          ecgData.push(leadII);
+          ecgData.shift();
+          break;
+        }
+
+        case 0x02: { // ECG Parameters
+          const status = content[1];
+          const hr = content[2];
+          const resp = content[3];
+          const arrCode = content[5];
+
+          document.getElementById('valHR').innerHTML = `${hr} <span class="val-unit">bpm</span>`;
+          document.getElementById('respDetails').innerText = `Resp Rate: ${resp} rpm`;
+
+          const leadOff = (status & 0x02) ? "Lead Off" : "Normal";
+          const arr = ARR_CODES[arrCode] || `ARR (${arrCode})`;
+          document.getElementById('ecgDetails').innerText = `Arrhythmia: ${arr} | Lead: ${leadOff}`;
+          break;
+        }
+
+        case 0x03: { // NIBP Parameters
+          const status = content[1];
+          const cuffPres = content[2] * 2;
+          const sys = content[3];
+          const mean = content[4];
+          const dia = content[5];
+
+          const testResCode = (status >> 2) & 0x0F;
+          const statusStr = NIBP_RESULTS[testResCode] || `Code ${testResCode}`;
+
+          if (testResCode === 0) { // Test Finished
+            document.getElementById('valNIBP').innerHTML = `${sys}/${dia} <span class="val-unit">mmHg</span>`;
+            document.getElementById('nibpDetails').innerText = `Mean: ${mean} | Cuff: ${cuffPres} mmHg | ${statusStr}`;
+          } else {
+            document.getElementById('nibpDetails').innerText = `Mean: -- | Cuff: ${cuffPres} mmHg | ${statusStr}`;
+          }
+          break;
+        }
+
+        case 0x04: { // SpO2 Parameters
+          const status = content[1];
+          const spo2 = content[2];
+          const pr = content[3];
+
+          if (status === 0x00) {
+            document.getElementById('valSpO2').innerHTML = `${spo2} <span class="val-unit">%</span>`;
+            document.getElementById('spo2Details').innerText = `Pulse Rate: ${pr} bpm | Status: Normal`;
+          } else {
+            document.getElementById('valSpO2').innerHTML = `-- <span class="val-unit">%</span>`;
+            document.getElementById('spo2Details').innerText = `Pulse Rate: -- | Status: ${SPO2_STATUS[status] || 'Error'}`;
+          }
+          break;
+        }
+
+        case 0x05: { // Temperature Parameters
+          const status = content[1];
+          const tInt = content[2];
+          const tDec = content[3];
+
+          if (status === 0x00) {
+            const tempVal = (tInt + tDec / 10).toFixed(1);
+            document.getElementById('valTemp').innerHTML = `${tempVal} <span class="val-unit">°C</span>`;
+          } else {
+            document.getElementById('valTemp').innerHTML = `--.- <span class="val-unit">°C</span>`;
+          }
+          break;
+        }
+
+        case 0xFE: { // SpO2 Waveform
+          const wave = content[1];
+          spo2Data.push(wave);
+          spo2Data.shift();
+          break;
+        }
+      }
+    }
+
+    // --- Web Serial Connection (SPP / USB) ---
+    async function connectSerial() {
+      try {
+        serialPort = await navigator.serial.requestPort();
+        await serialPort.open({ baudRate: 115200 }); // Protocol specifies 115200 8N1
+        transportType = 'serial';
+        serialWriter = serialPort.writable.getWriter();
+        updateUIState(true);
+
+        initMonitorOutputs();
+
+        const reader = serialPort.readable.getReader();
+        serialReader = reader;
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          if (value) processIncomingBytes(value);
+        }
+      } catch (err) {
+        console.error("Serial error:", err);
+        disconnect();
+      }
+    }
+
+    // --- Web Bluetooth Connection (BLE UART fallback) ---
+    async function connectBle() {
+      try {
+        bleDevice = await navigator.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: [
+            "6e400001-b5a3-f393-e0a9-e50e24dcca9e", // Nordic UART
+            "0000ffe0-0000-1000-8000-00805f9b34fb", // Common BLE serial
+            0xFFE0
+          ]
+        });
+
+        const server = await bleDevice.gatt.connect();
+        transportType = 'ble';
+
+        // Scan available services for TX/RX characteristics
+        const services = await server.getPrimaryServices();
+        for (const service of services) {
+          const chars = await service.getCharacteristics();
+          for (const char of chars) {
+            if (char.properties.notify || char.properties.indicate) {
+              bleRxChar = char;
+            }
+            if (char.properties.write || char.properties.writeWithoutResponse) {
+              bleTxChar = char;
+            }
+          }
+        }
+
+        if (bleRxChar) {
+          await bleRxChar.startNotifications();
+          bleRxChar.addEventListener('characteristicvaluechanged', (e) => {
+            const val = new Uint8Array(e.target.value.buffer);
+            processIncomingBytes(val);
+          });
+        }
+
+        updateUIState(true);
+        initMonitorOutputs();
+      } catch (err) {
+        console.error("BLE connection failed:", err);
+        disconnect();
+      }
+    }
+
+    // Start monitoring outputs per protocol commands
+    async function initMonitorOutputs() {
+      await sendPacket(createCommand(0x01, 0x01)); // Enable ECG parameters
+      await sendPacket(createCommand(0x03, 0x01)); // Enable SpO2 parameters
+      await sendPacket(createCommand(0x04, 0x01)); // Enable TEMP parameters
+      await sendPacket(createCommand(0xFB, 0x01)); // Enable ECG waveform
+      await sendPacket(createCommand(0xFE, 0x01)); // Enable SpO2 waveform
+    }
+
+    // --- Disconnect & Cleanup ---
+    async function disconnect() {
+      try {
+        if (serialReader) { await serialReader.cancel(); serialReader = null; }
+        if (serialWriter) { await serialWriter.close(); serialWriter = null; }
+        if (serialPort) { await serialPort.close(); serialPort = null; }
+        if (bleDevice && bleDevice.gatt.connected) { bleDevice.gatt.disconnect(); }
+      } catch (err) {
+        console.warn(err);
+      }
+      transportType = null;
+      updateUIState(false);
+    }
+
+    function updateUIState(connected) {
+      const statusEl = document.getElementById('connStatus');
+      statusEl.innerText = connected ? '● Connected' : '● Disconnected';
+      statusEl.style.color = connected ? '#22c55e' : '#ef4444';
+
+      document.getElementById('btnConnectSerial').disabled = connected;
+      document.getElementById('btnConnectBle').disabled = connected;
+      document.getElementById('btnDisconnect').disabled = !connected;
+      document.getElementById('btnNibpTrigger').disabled = !connected;
+    }
+
+    // --- NIBP Control ---
+    document.getElementById('btnNibpTrigger').addEventListener('click', async () => {
+      const btn = document.getElementById('btnNibpTrigger');
+      if (!isNibpRunning) {
+        // Set cuff preset pressure to default (170 / 2 = 85 -> 0x55)
+        await sendPacket(createCommand(0x0A, 85));
+        // Start NIBP measurement
+        await sendPacket(createCommand(0x02, 0x01));
+        btn.innerText = "Stop NIBP";
+        btn.classList.add("danger");
+        isNibpRunning = true;
+      } else {
+        // Stop NIBP measurement
+        await sendPacket(createCommand(0x02, 0x00));
+        btn.innerText = "Start NIBP";
+        btn.classList.remove("danger");
+        isNibpRunning = false;
+      }
+    });
+
+    // --- Realtime Waveform Rendering ---
+    function setupWaveformRenderer(canvasId, dataArray, strokeColor, maxVal) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+
+      function resize() {
+        canvas.width = canvas.parentElement.clientWidth - 24;
+        canvas.height = 130;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Background grid lines
+        ctx.strokeStyle = '#162238';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let x = 0; x < canvas.width; x += 40) { ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); }
+        for (let y = 0; y < canvas.height; y += 25) { ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); }
+        ctx.stroke();
+
+        // Waveform path
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        const step = canvas.width / (dataArray.length - 1);
+        for (let i = 0; i < dataArray.length; i++) {
+          const x = i * step;
+          // Invert coordinate space: high amplitude renders higher on screen
+          const norm = dataArray[i] / maxVal;
+          const y = canvas.height - (norm * (canvas.height - 20) + 10);
+
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        requestAnimationFrame(render);
+      }
+      requestAnimationFrame(render);
+    }
+
+    setupWaveformRenderer('ecgCanvas', ecgData, '#22c55e', 255);
+    setupWaveformRenderer('spo2Canvas', spo2Data, '#06b6d4', 100);
+
+    // Event Listeners
+    document.getElementById('btnConnectSerial').addEventListener('click', connectSerial);
+    document.getElementById('btnConnectBle').addEventListener('click', connectBle);
+    document.getElementById('btnDisconnect').addEventListener('click', disconnect);
+  </script>
+</body>
+</html>
