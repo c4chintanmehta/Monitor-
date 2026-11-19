@@ -177,7 +177,7 @@
           <span id="ptRoomCodeBadge" class="font-mono-num text-xs font-bold text-emerald-400">ROOM: ML8841</span>
         </div>
         <h1 id="ptWelcomeName" class="text-base sm:text-lg font-bold text-white mt-0.5">Welcome, Aarav Sharma</h1>
-        <p class="text-xs text-slate-400">Consulting Physician: Dr. Meera Nair, MD (Internal Medicine)</p>
+        <p id="ptConsultingDoctorLabel" class="text-xs text-slate-400">Consulting Physician: Dr. Meera Nair, MD (Internal Medicine)</p>
       </div>
 
       <div class="flex items-center gap-2">
@@ -335,8 +335,9 @@
         </div>
 
         <div class="pt-2.5 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
-          <div class="text-xs text-slate-400">
-            Consulting Physician: <strong class="text-slate-200">Dr. Meera Nair, MD</strong>
+          <div class="flex items-center gap-1.5 text-xs text-slate-400 select-text">
+            <label for="regDoctorName" class="shrink-0">Consulting Physician:</label>
+            <input id="regDoctorName" type="text" value="Dr. Meera Nair, MD" oninput="syncDoctorNameAcrossUi()" class="bg-[#131c29] border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-100 focus:outline-none focus:border-sky-500 w-48 sm:w-56">
           </div>
           <div class="flex items-center gap-2">
             <button id="btnRegisterPatient" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-400 text-slate-950 transition cursor-pointer shadow-lg shadow-sky-500/20">
@@ -1062,7 +1063,7 @@
                 <p class="text-xs text-slate-600 mt-0.5">Digital Telemedicine & Remote Telemetry Center • Reg. No: MCI-2019-48291</p>
               </div>
               <div class="text-right text-xs">
-                <div class="font-bold text-slate-900">Dr. Meera Nair, MD</div>
+                <div id="rxDoctorHeaderName" class="font-bold text-slate-900">Dr. Meera Nair, MD</div>
                 <div class="text-slate-600">Consultant Internal Medicine</div>
                 <div class="font-mono-num text-[11px] text-slate-500 mt-0.5">Date: <span id="rxDateDisplay">2026-11-19</span></div>
               </div>
@@ -1133,8 +1134,8 @@
               Valid for teleconsultation & pharmacy dispensing.
             </div>
             <div class="text-right">
-              <div class="font-serif italic text-base font-bold text-sky-800">Dr. Meera Nair</div>
-              <div class="text-[11px] font-bold text-slate-800">Dr. Meera Nair, MD (Internal Medicine)</div>
+              <div id="rxDoctorSignature" class="font-serif italic text-base font-bold text-sky-800">Dr. Meera Nair</div>
+              <div id="rxDoctorFooterName" class="text-[11px] font-bold text-slate-800">Dr. Meera Nair, MD (Internal Medicine)</div>
               <div class="text-[10px] text-slate-500">Digitally Signed • Verified Tele-Consult</div>
             </div>
           </div>
@@ -1301,6 +1302,7 @@
       broadcastChan: null,
 
       patient: {
+        doctorName: 'Dr. Meera Nair, MD',
         name: 'Aarav Sharma',
         age: 42,
         gender: 'Male',
@@ -1719,6 +1721,7 @@ ${rawTranscript}`;
     function encodePatientParam() {
       try {
         const compact = {
+          d: AppState.patient.doctorName,
           n: AppState.patient.name,
           a: AppState.patient.age,
           g: AppState.patient.gender,
@@ -1736,6 +1739,7 @@ ${rawTranscript}`;
       try {
         const jsonStr = decodeURIComponent(escape(atob(decodeURIComponent(encoded))));
         const d = JSON.parse(jsonStr);
+        if (d.d) AppState.patient.doctorName = d.d;
         if (d.n) AppState.patient.name = d.n;
         if (d.a) AppState.patient.age = d.a;
         if (d.g) AppState.patient.gender = d.g;
@@ -1747,8 +1751,9 @@ ${rawTranscript}`;
 
     function getThirdPartyVideoUrl(engine, role, roomId) {
       const cleanRoom = (roomId || 'ML8841').replace(/[^a-zA-Z0-9]/g, '');
+      const cleanDocLabel = (AppState.patient.doctorName || 'Dr._Meera_Nair_MD').replace(/[^a-zA-Z0-9._-]/g, '_');
       const label = role === 'doctor'
-        ? 'Dr._Meera_Nair_MD'
+        ? cleanDocLabel
         : encodeURIComponent(AppState.patient.name.replace(/\s+/g, '_'));
       if (engine === 'jitsi') {
         return `https://meet.jit.si/MedLinkTeleCare_${cleanRoom}#userInfo.displayName="${label}"&config.prejoinPageEnabled=false`;
@@ -1794,6 +1799,8 @@ ${rawTranscript}`;
       });
 
       document.getElementById('regName').value = AppState.patient.name;
+      const regDocInp = document.getElementById('regDoctorName');
+      if (regDocInp) regDocInp.value = AppState.patient.doctorName;
       document.getElementById('regAge').value = AppState.patient.age;
       document.getElementById('regGender').value = AppState.patient.gender;
       document.getElementById('regMrn').value = AppState.patient.mrn;
@@ -1820,6 +1827,7 @@ ${rawTranscript}`;
       ptView.classList.remove('hidden');
       ptView.classList.add('flex');
       document.getElementById('ptWelcomeName').textContent = `Welcome, ${AppState.patient.name}`;
+      document.getElementById('ptConsultingDoctorLabel').textContent = `Consulting Physician: ${AppState.patient.doctorName} (Internal Medicine)`;
       switchPatientVideoEngine('vdoninja');
     }
 
@@ -1912,7 +1920,7 @@ ${rawTranscript}`;
     function shareViaWhatsApp() {
       buildShareableUrls();
       const vdoUrl = document.getElementById('shareDirectVdoUrl').value;
-      const msg = encodeURIComponent(`Hello ${AppState.patient.name}, please join your MedLink TeleCare video consultation with Dr. Meera Nair (Room ${AppState.roomId}): ${vdoUrl}`);
+      const msg = encodeURIComponent(`Hello ${AppState.patient.name}, please join your MedLink TeleCare video consultation with ${AppState.patient.doctorName} (Room ${AppState.roomId}): ${vdoUrl}`);
       window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
 
@@ -2112,16 +2120,38 @@ ${rawTranscript}`;
     // ----------------------------------------------------------------------------
     // 6. STAGE 1: PATIENT REGISTRATION SYNC
     // ----------------------------------------------------------------------------
+    function syncDoctorNameAcrossUi() {
+      const regDocInp = document.getElementById('regDoctorName');
+      const docName = (regDocInp ? regDocInp.value.trim() : AppState.patient.doctorName) || 'Dr. Meera Nair, MD';
+      AppState.patient.doctorName = docName;
+      const sigName = docName.split(',')[0].trim();
+
+      const ptDocLabel = document.getElementById('ptConsultingDoctorLabel');
+      if (ptDocLabel) ptDocLabel.textContent = `Consulting Physician: ${docName} (Internal Medicine)`;
+
+      const rxHdr = document.getElementById('rxDoctorHeaderName');
+      if (rxHdr) rxHdr.textContent = docName;
+
+      const rxSig = document.getElementById('rxDoctorSignature');
+      if (rxSig) rxSig.textContent = sigName;
+
+      const rxFtr = document.getElementById('rxDoctorFooterName');
+      if (rxFtr) rxFtr.textContent = `${docName} (Internal Medicine)`;
+    }
+
     function syncPatientLabelsAcrossUi() {
       const p = AppState.patient;
       const catNames = { 1: 'ADULT', 2: 'PEDIATRIC', 3: 'NEONATE' };
       document.getElementById('topPatientName').textContent = p.name.toUpperCase();
       document.getElementById('topPatientMeta').textContent = `${p.age}Y / ${p.gender[0]} • ${p.mrn} • ${p.bed}`;
       document.getElementById('topPatientCat').textContent = catNames[p.type] || 'ADULT';
+      syncDoctorNameAcrossUi();
     }
 
     document.getElementById('btnRegisterPatient').addEventListener('click', () => {
       const p = AppState.patient;
+      const regDocInp = document.getElementById('regDoctorName');
+      if (regDocInp) p.doctorName = regDocInp.value.trim() || 'Dr. Meera Nair, MD';
       p.name = document.getElementById('regName').value.trim() || 'Unknown Patient';
       p.age = parseInt(document.getElementById('regAge').value, 10) || 35;
       p.gender = document.getElementById('regGender').value;
@@ -3143,6 +3173,7 @@ SOAP: S: ${soap.s} | O: ${soap.o} | A: ${soap.a}`;
       const v = AppState.vitals;
 
       document.getElementById('rxDateDisplay').textContent = new Date().toISOString().split('T')[0];
+      syncDoctorNameAcrossUi();
       document.getElementById('rxPatientName').textContent = p.name;
       document.getElementById('rxPatientAgeSex').textContent = `${p.age} Y / ${p.gender}`;
       document.getElementById('rxPatientMrn').textContent = `${p.mrn} (${p.bed})`;
@@ -3188,7 +3219,7 @@ SOAP: S: ${soap.s} | O: ${soap.o} | A: ${soap.a}`;
       const p = AppState.patient;
       const v = AppState.vitals;
       const meds = AppState.clinical.medications.map((m, i) => `${i + 1}. ${m.drug} (${m.freq} x ${m.duration}) - ${m.inst}`).join('\n');
-      const summary = `MEDLINK TELECARE E-PRESCRIPTION\nPatient: ${p.name} (${p.age}Y/${p.gender}) | Room: ${AppState.roomId}\nVitals: HR ${v.hr} bpm, SpO2 ${v.spo2}%, BP ${v.nibpSys}/${v.nibpDia} mmHg, Temp ${v.temp1}°C\nRx:\n${meds}`;
+      const summary = `MEDLINK TELECARE E-PRESCRIPTION\nConsulting Physician: ${p.doctorName}\nPatient: ${p.name} (${p.age}Y/${p.gender}) | Room: ${AppState.roomId}\nVitals: HR ${v.hr} bpm, SpO2 ${v.spo2}%, BP ${v.nibpSys}/${v.nibpDia} mmHg, Temp ${v.temp1}°C\nRx:\n${meds}`;
       copyTextToClipboard(summary, 'E-Prescription summary copied to clipboard');
     }
 
