@@ -369,44 +369,43 @@
               <div class="flex items-center justify-between mb-2">
                 <span class="text-xs font-extrabold uppercase tracking-wider text-[#0066cc]">Remote Consultation Links</span>
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-orange-100 text-[#e05a00] border border-orange-200">
-                  Instant WebRTC
+                  2-Way Live Sync
                 </span>
               </div>
 
-              <!-- 1. Patient Portal Invite Link -->
-              <div class="space-y-2.5 text-xs mt-3">
-                <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-3">
-                  <div class="flex items-center justify-between mb-1">
-                    <span class="font-extrabold text-[#0052a3] text-[11px]">1. Patient Portal Link (Video + Vitals Sync)</span>
+              <!-- 2 Dedicated Consultation Links: 1 for Patient, 1 for Doctor -->
+              <div class="space-y-3 text-xs mt-3">
+                <!-- 1. Patient Link -->
+                <div class="bg-orange-50/70 border border-orange-200 rounded-xl p-3.5">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="font-extrabold text-[#e05a00] text-xs flex items-center gap-1.5">
+                      <span class="w-5 h-5 rounded-full bg-[#ff6b00] text-white text-[10px] font-extrabold flex items-center justify-center">1</span>
+                      <span>Patient Consultation Link</span>
+                    </span>
                     <span class="font-mono-num text-[10px] font-bold text-[#ff6b00]" id="s1RoomCodeText">ML8841</span>
                   </div>
+                  <p class="text-[11px] text-slate-600 mb-2">Share with patient to join video call & stream live monitor vitals.</p>
                   <div class="flex items-center gap-1.5">
-                    <input id="sharePatientUrl" type="text" readonly class="flex-1 bg-white border border-blue-200 rounded-lg px-2.5 py-1.5 font-mono-num text-[11px] text-slate-700 focus:outline-none">
-                    <button onclick="copyShareUrl('sharePatientUrl', 'Patient Portal link copied!')" class="px-2.5 py-1.5 rounded-lg bg-[#0066cc] hover:bg-blue-700 text-white font-bold cursor-pointer shrink-0">Copy</button>
-                    <button onclick="openPatientInNewTab()" class="px-2.5 py-1.5 rounded-lg bg-[#ff6b00] hover:bg-orange-600 text-white font-bold cursor-pointer shrink-0">Open ↗</button>
+                    <input id="sharePatientUrl" type="text" readonly class="flex-1 bg-white border border-orange-200 rounded-lg px-2.5 py-1.5 font-mono-num text-[11px] text-slate-700 focus:outline-none">
+                    <button onclick="copyShareUrl('sharePatientUrl', 'Patient Consultation link copied!')" class="px-2.5 py-1.5 rounded-lg bg-[#ff6b00] hover:bg-orange-600 text-white font-bold cursor-pointer shrink-0">Copy</button>
+                    <button onclick="openPatientInNewTab()" class="px-2.5 py-1.5 rounded-lg bg-white border border-orange-300 hover:bg-orange-100 text-[#e05a00] font-bold cursor-pointer shrink-0">Open ↗</button>
                   </div>
                 </div>
 
-                <!-- 2. Direct Mobile Video Link -->
-                <div class="bg-orange-50/60 border border-orange-200 rounded-xl p-3">
-                  <div class="flex items-center justify-between mb-1">
-                    <span class="font-extrabold text-[#e05a00] text-[11px]">2. Direct Mobile Video Call Link (No App Needed)</span>
+                <!-- 2. Doctor Link -->
+                <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-3.5">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="font-extrabold text-[#0052a3] text-xs flex items-center gap-1.5">
+                      <span class="w-5 h-5 rounded-full bg-[#0066cc] text-white text-[10px] font-extrabold flex items-center justify-center">2</span>
+                      <span>Doctor Consultation Link</span>
+                    </span>
+                    <span class="text-[10px] font-bold text-[#0066cc]">50/50 Video + Monitor</span>
                   </div>
+                  <p class="text-[11px] text-slate-600 mb-2">Opens Doctor Room with half-screen patient face & half-screen live monitor.</p>
                   <div class="flex items-center gap-1.5">
-                    <input id="shareDirectVdoUrl" type="text" readonly class="flex-1 bg-white border border-orange-200 rounded-lg px-2.5 py-1.5 font-mono-num text-[11px] text-slate-700 focus:outline-none">
-                    <button onclick="copyShareUrl('shareDirectVdoUrl', 'Direct video link copied!')" class="px-2.5 py-1.5 rounded-lg bg-[#ff6b00] hover:bg-orange-600 text-white font-bold cursor-pointer shrink-0">Copy</button>
-                    <a id="anchorDirectVdo" href="#" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg bg-white border border-orange-300 text-[#e05a00] font-bold shrink-0">Launch ↗</a>
-                  </div>
-                </div>
-
-                <!-- 3. Doctor Multi-Device Link -->
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
-                  <div class="flex items-center justify-between mb-1">
-                    <span class="font-bold text-slate-700 text-[11px]">3. Doctor Console Link (Open on Secondary Screen)</span>
-                  </div>
-                  <div class="flex items-center gap-1.5">
-                    <input id="shareDoctorUrl" type="text" readonly class="flex-1 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono-num text-[11px] text-slate-700 focus:outline-none">
-                    <button onclick="copyShareUrl('shareDoctorUrl', 'Doctor Console link copied!')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold cursor-pointer shrink-0">Copy</button>
+                    <input id="shareDoctorUrl" type="text" readonly class="flex-1 bg-white border border-blue-200 rounded-lg px-2.5 py-1.5 font-mono-num text-[11px] text-slate-700 focus:outline-none">
+                    <button onclick="copyShareUrl('shareDoctorUrl', 'Doctor Consultation link copied!')" class="px-2.5 py-1.5 rounded-lg bg-[#0066cc] hover:bg-blue-700 text-white font-bold cursor-pointer shrink-0">Copy</button>
+                    <button onclick="openDoctorInNewTab()" class="px-2.5 py-1.5 rounded-lg bg-white border border-blue-300 hover:bg-blue-100 text-[#0052a3] font-bold cursor-pointer shrink-0">Open ↗</button>
                   </div>
                 </div>
               </div>
@@ -414,10 +413,10 @@
 
             <div class="grid grid-cols-2 gap-2 pt-2 border-t border-blue-100">
               <button onclick="openQrModal()" class="py-2 px-3 rounded-xl text-xs font-extrabold bg-blue-50 hover:bg-blue-100 text-[#0052a3] border border-blue-200 cursor-pointer flex items-center justify-center gap-1.5 transition">
-                <span>Scan QR on Phone</span>
+                <span>Patient QR Code</span>
               </button>
               <button onclick="shareViaWhatsApp()" class="py-2 px-3 rounded-xl text-xs font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer flex items-center justify-center gap-1.5 transition shadow-xs">
-                <span>Share via WhatsApp</span>
+                <span>WhatsApp Patient Link</span>
               </button>
             </div>
           </div>
@@ -452,49 +451,50 @@
     </section>
 
     <!-- ======================================================================= -->
-    <!-- STAGE 2: CLEAN VIDEO CONSULT + SIDE TELEMETRY RIBBON + SOAP SCRIBE      -->
+    <!-- STAGE 2: 50/50 SPLIT PATIENT FACE VIDEO + FULL REAL-TIME VITAL MONITOR  -->
     <!-- ======================================================================= -->
-    <section id="viewStage2" class="hidden w-full h-full p-3 gap-3 flex-col lg:flex-row overflow-hidden">
+    <section id="viewStage2" class="hidden w-full h-full p-2.5 gap-2.5 flex-col lg:flex-row overflow-hidden">
 
-      <!-- LEFT / CENTER AREA (~67% width) -->
-      <div id="consultLeftPane" class="w-full lg:w-[67%] h-full flex flex-col gap-3 min-h-0">
+      <!-- LEFT HALF (50% WIDTH): PATIENT'S FACE VIDEO + COLLAPSIBLE SOAP SCRIBE -->
+      <div id="consultLeftPane" class="w-full lg:w-1/2 h-full flex flex-col gap-2.5 min-h-0">
 
-        <!-- TOP: CLEAN VIDEO STAGE (56% height) -->
-        <div id="videoStageContainer" class="relative flex-[56] min-h-0 bg-white border border-blue-200 rounded-2xl overflow-hidden flex flex-col shadow-md">
+        <!-- TOP: PATIENT'S FACE LIVE VIDEO STAGE (64% height by default, 100% when SOAP hidden) -->
+        <div id="videoStageContainer" class="relative flex-[64] min-h-0 bg-white border-2 border-[#0066cc] rounded-2xl overflow-hidden flex flex-col shadow-md">
           <!-- Vibrant Blue & White Video Header -->
-          <div class="bg-gradient-to-r from-[#0052a3] to-[#0066cc] px-3.5 py-1.5 flex flex-wrap items-center justify-between gap-2 shrink-0 z-20 text-white">
-            <div class="flex items-center gap-2.5">
+          <div class="bg-gradient-to-r from-[#0052a3] to-[#0066cc] px-3 py-1.5 flex flex-wrap items-center justify-between gap-1.5 shrink-0 z-20 text-white">
+            <div class="flex items-center gap-2">
               <span class="w-2.5 h-2.5 rounded-full bg-[#ff6b00] animate-pulse"></span>
-              <span class="text-xs font-extrabold">Room <span id="docActiveRoomLabel" class="text-orange-300 font-mono-num">ML8841</span></span>
-              <span id="callTimer" class="font-mono-num text-xs font-bold text-white bg-white/15 px-2.5 py-0.5 rounded-full">00:00</span>
-              <span id="activeEngineTag" class="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-mono-num font-bold bg-white/15 text-blue-100">VDO.Ninja HD</span>
+              <span class="text-xs font-extrabold">Patient Video • <span id="docActiveRoomLabel" class="text-orange-300 font-mono-num">ML8841</span></span>
+              <span id="callTimer" class="font-mono-num text-[11px] font-bold text-white bg-white/15 px-2 py-0.5 rounded-full">00:00</span>
+              <span id="activeEngineTag" class="hidden xl:inline-block px-2 py-0.5 rounded-full text-[10px] font-mono-num font-bold bg-white/15 text-blue-100">VDO.Ninja HD</span>
             </div>
 
             <!-- Streamlined Video Controls -->
-            <div class="flex items-center gap-1.5">
-              <div class="flex items-center bg-blue-950/50 border border-white/20 rounded-full p-0.5 text-[11px]">
-                <button id="btnEngineVdo" onclick="setDoctorVideoEngine('vdoninja')" class="px-2.5 py-0.5 rounded-full font-bold bg-[#ff6b00] text-white cursor-pointer transition">
+            <div class="flex items-center gap-1">
+              <div class="flex items-center bg-blue-950/50 border border-white/20 rounded-full p-0.5 text-[10px]">
+                <button id="btnEngineVdo" onclick="setDoctorVideoEngine('vdoninja')" class="px-2 py-0.5 rounded-full font-bold bg-[#ff6b00] text-white cursor-pointer transition">
                   VDO.Ninja
                 </button>
-                <button id="btnEngineJitsi" onclick="setDoctorVideoEngine('jitsi')" class="px-2.5 py-0.5 rounded-full font-bold text-blue-100 hover:text-white cursor-pointer transition">
+                <button id="btnEngineJitsi" onclick="setDoctorVideoEngine('jitsi')" class="px-2 py-0.5 rounded-full font-bold text-blue-100 hover:text-white cursor-pointer transition">
                   Jitsi
                 </button>
               </div>
 
-              <button onclick="reloadDoctorVideoFrame()" title="Reload Video" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/15 hover:bg-white/25 text-white cursor-pointer transition">
+              <button id="btnToggleSoapDrawer" onclick="toggleSoapPanelInSplit()" title="Toggle SOAP Recorder Drawer" class="px-2 py-1 rounded-full text-[10px] font-extrabold bg-white/15 hover:bg-white/25 text-white cursor-pointer transition">
+                Hide SOAP
+              </button>
+              <button onclick="reloadDoctorVideoFrame()" title="Reload Video" class="px-2 py-1 rounded-full text-[10px] font-bold bg-white/15 hover:bg-white/25 text-white cursor-pointer transition">
                 Reload
               </button>
-              <button onclick="toggleVideoFullscreen()" title="Fullscreen" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/15 hover:bg-white/25 text-white cursor-pointer transition">
+              <button onclick="toggleVideoFullscreen()" title="Fullscreen" class="px-2 py-1 rounded-full text-[10px] font-bold bg-white/15 hover:bg-white/25 text-white cursor-pointer transition">
                 Fullscreen
               </button>
-              <a id="docExternalCallBtn" href="#" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/15 hover:bg-white/25 text-white transition">
-                Popout ↗
-              </a>
-              <button onclick="openQrModal()" class="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-white text-[#0052a3] hover:bg-blue-50 cursor-pointer transition">
+              <a id="docExternalCallBtn" href="#" target="_blank" rel="noopener noreferrer" class="hidden"></a>
+              <button onclick="openQrModal()" class="px-2 py-1 rounded-full text-[10px] font-extrabold bg-white text-[#0052a3] hover:bg-blue-50 cursor-pointer transition">
                 QR
               </button>
-              <button onclick="copyShareUrl('sharePatientUrl', 'Patient invite link copied!')" class="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-[#ff6b00] hover:bg-orange-600 text-white cursor-pointer transition">
-                Invite
+              <button onclick="copyShareUrl('sharePatientUrl', 'Patient Consultation link copied!')" class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[#ff6b00] hover:bg-orange-600 text-white cursor-pointer transition">
+                Patient Link
               </button>
             </div>
           </div>
@@ -509,483 +509,356 @@
           </div>
         </div>
 
-        <!-- BOTTOM: CLEAN MULTILINGUAL SOAP SCRIBE & MEETING RECORDER (44% height) -->
-        <div class="flex-[44] min-h-0 bg-white border border-blue-200 rounded-2xl p-3 flex flex-col shadow-md">
-          <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-blue-100 shrink-0">
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-extrabold uppercase tracking-wider text-[#0066cc]">Conversation Recorder & SOAP</span>
-              <span id="scribeStatusBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-[#0066cc] border border-blue-200">STANDBY</span>
-              <span id="recAudioTimerBadge" class="hidden font-mono-num text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-600 text-white animate-pulse">REC 00:00</span>
-              <select id="selSpeechLang" onchange="onSpeechLanguageChange()" title="Spoken Conversation Language" class="bg-orange-50 text-[#d95800] text-[11px] font-bold px-2.5 py-1 rounded-full border border-orange-200 focus:outline-none cursor-pointer">
-                <option value="auto" selected>Auto (EN + HI + GU)</option>
+        <!-- BOTTOM: COMPACT MULTILINGUAL SOAP SCRIBE & MEETING RECORDER (36% height) -->
+        <div id="soapScribeContainer" class="flex-[36] min-h-0 bg-white border border-blue-200 rounded-2xl p-2.5 flex flex-col shadow-md">
+          <div class="flex flex-wrap items-center justify-between gap-1.5 pb-1.5 border-b border-blue-100 shrink-0">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#0066cc]">Recorder & SOAP</span>
+              <span id="scribeStatusBadge" class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-50 text-[#0066cc] border border-blue-200">STANDBY</span>
+              <span id="recAudioTimerBadge" class="hidden font-mono-num text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-rose-600 text-white animate-pulse">REC 00:00</span>
+              <select id="selSpeechLang" onchange="onSpeechLanguageChange()" title="Spoken Conversation Language" class="bg-orange-50 text-[#d95800] text-[10px] font-bold px-2 py-0.5 rounded-full border border-orange-200 focus:outline-none cursor-pointer">
+                <option value="auto" selected>Auto (EN/HI/GU)</option>
                 <option value="gu-IN">Gujarati (ગુજરાતી)</option>
                 <option value="hi-IN">Hindi (हिन्दी)</option>
-                <option value="en-IN">English (India)</option>
+                <option value="en-IN">English (IN)</option>
                 <option value="en-US">English (US)</option>
               </select>
-              <select id="selSoapOutputMode" onchange="structureTranscriptIntoSoap(false)" title="SOAP Note Output Format" class="bg-slate-50 text-slate-700 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-slate-200 focus:outline-none cursor-pointer">
+              <select id="selSoapOutputMode" onchange="structureTranscriptIntoSoap(false)" class="hidden">
                 <option value="english" selected>SOAP: English</option>
                 <option value="bilingual">SOAP: Bilingual</option>
               </select>
             </div>
-            <div class="flex items-center gap-1.5">
-              <button id="btnToggleRecord" class="px-3 py-1 rounded-full text-[11px] font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 cursor-pointer flex items-center gap-1.5 transition">
-                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            <div class="flex items-center gap-1">
+              <button id="btnToggleRecord" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 cursor-pointer flex items-center gap-1 transition">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                 <span id="btnRecordLabel">Start Recording</span>
               </button>
-              <button id="btnSimDialogue" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 hover:bg-blue-100 text-[#0066cc] border border-blue-200 cursor-pointer transition">
-                + Sample GU/HI
+              <button id="btnSimDialogue" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 hover:bg-blue-100 text-[#0066cc] border border-blue-200 cursor-pointer transition">
+                + GU/HI
               </button>
-              <button id="btnGenerateSoap" class="px-3 py-1 rounded-full text-[11px] font-bold bg-orange-50 hover:bg-orange-100 text-[#e05a00] border border-orange-200 cursor-pointer flex items-center gap-1 transition">
-                <span id="soapAiSpinner" class="hidden w-3 h-3 border-2 border-[#ff6b00] border-t-transparent rounded-full animate-spin"></span>
-                <span>Convert to Record</span>
+              <button id="btnGenerateSoap" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-50 hover:bg-orange-100 text-[#e05a00] border border-orange-200 cursor-pointer flex items-center gap-1 transition">
+                <span id="soapAiSpinner" class="hidden w-2.5 h-2.5 border-2 border-[#ff6b00] border-t-transparent rounded-full animate-spin"></span>
+                <span>Convert</span>
               </button>
-              <button onclick="openStructuredRecordModal()" title="View Full Recorded Audio & Structured Clinical Record" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 hover:bg-blue-100 text-[#0052a3] border border-blue-200 cursor-pointer transition">
-                View Record
+              <button onclick="openStructuredRecordModal()" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 hover:bg-blue-100 text-[#0052a3] border border-blue-200 cursor-pointer transition">
+                Record
               </button>
-              <button onclick="switchStage(3)" class="px-3 py-1 rounded-full text-[11px] font-extrabold bg-[#ff6b00] hover:bg-orange-600 text-white cursor-pointer transition shadow-xs">
-                AI Diagnosis →
+              <button onclick="switchStage(3)" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#ff6b00] hover:bg-orange-600 text-white cursor-pointer transition shadow-xs">
+                AI Dx →
               </button>
             </div>
           </div>
 
-          <div class="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-12 gap-2.5 pt-2">
+          <div class="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-12 gap-2 pt-1.5">
             <!-- Transcript Feed (5 cols) -->
-            <div class="md:col-span-5 bg-slate-50 border border-slate-200 rounded-xl p-2.5 flex flex-col min-h-0">
-              <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-1 flex items-center justify-between shrink-0">
-                <span>Transcript <span id="activeLangTag" class="text-[#ff6b00] font-mono-num ml-1">[AUTO]</span></span>
-                <div class="flex items-center gap-2">
+            <div class="md:col-span-5 bg-slate-50 border border-slate-200 rounded-xl p-2 flex flex-col min-h-0">
+              <div class="text-[9px] font-extrabold uppercase tracking-wider text-slate-500 mb-0.5 flex items-center justify-between shrink-0">
+                <span>Transcript <span id="activeLangTag" class="text-[#ff6b00] font-mono-num">[AUTO]</span></span>
+                <div class="flex items-center gap-1.5">
                   <a id="btnDownloadAudioQuick" href="#" download="consultation_recording.webm" class="hidden text-[#0066cc] hover:underline font-bold">Audio ↓</a>
                   <button onclick="clearTranscript()" class="text-slate-400 hover:text-slate-700 cursor-pointer font-semibold">Clear</button>
                 </div>
               </div>
-              <div id="liveTranscriptFeed" class="flex-1 overflow-y-auto space-y-1 text-[11px] leading-relaxed text-slate-700 pr-1 select-text">
-                <div class="text-slate-400 italic">Click "Start Recording" when Doctor–Patient conversation begins (supports English, Gujarati & Hindi)...</div>
+              <div id="liveTranscriptFeed" class="flex-1 overflow-y-auto space-y-1 text-[10px] leading-snug text-slate-700 pr-1 select-text">
+                <div class="text-slate-400 italic">Click "Start Recording" when conversation begins (EN / GU / HI)...</div>
               </div>
-              <div id="interimTranscriptLine" class="text-[10px] italic text-[#ff6b00] truncate min-h-[14px]"></div>
-              <div class="mt-1.5 pt-1.5 border-t border-slate-200 flex items-center gap-1.5 shrink-0">
-                <select id="selManualSpeaker" class="bg-white text-[10px] font-bold text-slate-700 rounded-lg px-2 py-1 border border-slate-300 cursor-pointer focus:outline-none">
-                  <option value="Patient">Patient</option>
-                  <option value="Doctor">Doctor</option>
+              <div id="interimTranscriptLine" class="text-[9px] italic text-[#ff6b00] truncate min-h-[12px]"></div>
+              <div class="mt-1 pt-1 border-t border-slate-200 flex items-center gap-1 shrink-0">
+                <select id="selManualSpeaker" class="bg-white text-[9px] font-bold text-slate-700 rounded-md px-1.5 py-0.5 border border-slate-300 cursor-pointer focus:outline-none">
+                  <option value="Patient">Pt</option>
+                  <option value="Doctor">Dr</option>
                 </select>
-                <input id="inpManualTranscript" type="text" onkeydown="if(event.key==='Enter') addManualTranscriptLine()" placeholder="Type GU / HI / EN note..." class="flex-1 bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-[11px] text-slate-900 focus:outline-none focus:border-[#0066cc]">
-                <button onclick="addManualTranscriptLine()" class="px-2.5 py-1 rounded-lg bg-[#0066cc] hover:bg-blue-700 text-white text-[10px] font-bold cursor-pointer">
+                <input id="inpManualTranscript" type="text" onkeydown="if(event.key==='Enter') addManualTranscriptLine()" placeholder="Type GU/HI/EN..." class="flex-1 min-w-0 bg-white border border-slate-300 rounded-md px-2 py-0.5 text-[10px] text-slate-900 focus:outline-none focus:border-[#0066cc]">
+                <button onclick="addManualTranscriptLine()" class="px-2 py-0.5 rounded-md bg-[#0066cc] hover:bg-blue-700 text-white text-[9px] font-bold cursor-pointer">
                   Add
                 </button>
               </div>
             </div>
 
             <!-- 4 Clean SOAP Cards (7 cols) -->
-            <div class="md:col-span-7 grid grid-cols-2 gap-2 min-h-0 select-text">
-              <div class="bg-blue-50/40 border border-blue-200/80 rounded-xl p-2 flex flex-col">
-                <label class="text-[10px] font-extrabold text-[#0066cc] uppercase tracking-wider mb-0.5">S — Subjective</label>
-                <textarea id="soapSubjective" placeholder="Populates automatically from patient conversation..." class="flex-1 bg-transparent text-[11px] text-slate-800 resize-none focus:outline-none leading-snug"></textarea>
+            <div class="md:col-span-7 grid grid-cols-2 gap-1.5 min-h-0 select-text">
+              <div class="bg-blue-50/40 border border-blue-200/80 rounded-lg p-1.5 flex flex-col">
+                <label class="text-[9px] font-extrabold text-[#0066cc] uppercase tracking-wider">S — Subjective</label>
+                <textarea id="soapSubjective" placeholder="Auto-fills from conversation..." class="flex-1 bg-transparent text-[10px] text-slate-800 resize-none focus:outline-none leading-tight"></textarea>
               </div>
-              <div class="bg-slate-50 border border-slate-200 rounded-xl p-2 flex flex-col">
-                <div class="flex items-center justify-between mb-0.5">
-                  <label class="text-[10px] font-extrabold text-emerald-700 uppercase tracking-wider">O — Objective</label>
-                  <button onclick="injectVitalsIntoSoap()" class="text-[9px] font-bold text-[#ff6b00] hover:underline cursor-pointer">Sync Vitals</button>
+              <div class="bg-slate-50 border border-slate-200 rounded-lg p-1.5 flex flex-col">
+                <div class="flex items-center justify-between">
+                  <label class="text-[9px] font-extrabold text-emerald-700 uppercase tracking-wider">O — Objective</label>
+                  <button onclick="injectVitalsIntoSoap()" class="text-[8px] font-bold text-[#ff6b00] hover:underline cursor-pointer">Sync Vitals</button>
                 </div>
-                <textarea id="soapObjective" placeholder="Populates automatically with telemetry vitals during consultation..." class="flex-1 bg-transparent text-[11px] font-mono-num text-slate-800 resize-none focus:outline-none leading-snug"></textarea>
+                <textarea id="soapObjective" placeholder="Syncs live telemetry vitals..." class="flex-1 bg-transparent text-[10px] font-mono-num text-slate-800 resize-none focus:outline-none leading-tight"></textarea>
               </div>
-              <div class="bg-orange-50/40 border border-orange-200/80 rounded-xl p-2 flex flex-col">
-                <label class="text-[10px] font-extrabold text-[#e05a00] uppercase tracking-wider mb-0.5">A — Assessment</label>
-                <textarea id="soapAssessment" placeholder="Clinical impression generated from conversation..." class="flex-1 bg-transparent text-[11px] text-slate-800 resize-none focus:outline-none leading-snug"></textarea>
+              <div class="bg-orange-50/40 border border-orange-200/80 rounded-lg p-1.5 flex flex-col">
+                <label class="text-[9px] font-extrabold text-[#e05a00] uppercase tracking-wider">A — Assessment</label>
+                <textarea id="soapAssessment" placeholder="Clinical impression..." class="flex-1 bg-transparent text-[10px] text-slate-800 resize-none focus:outline-none leading-tight"></textarea>
               </div>
-              <div class="bg-blue-50/40 border border-blue-200/80 rounded-xl p-2 flex flex-col">
-                <label class="text-[10px] font-extrabold text-[#0052a3] uppercase tracking-wider mb-0.5">P — Plan</label>
-                <textarea id="soapPlan" placeholder="Diagnostic & treatment plan generated from conversation..." class="flex-1 bg-transparent text-[11px] text-slate-800 resize-none focus:outline-none leading-snug"></textarea>
+              <div class="bg-blue-50/40 border border-blue-200/80 rounded-lg p-1.5 flex flex-col">
+                <label class="text-[9px] font-extrabold text-[#0052a3] uppercase tracking-wider">P — Plan</label>
+                <textarea id="soapPlan" placeholder="Treatment plan..." class="flex-1 bg-transparent text-[10px] text-slate-800 resize-none focus:outline-none leading-tight"></textarea>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT AREA (~33% width): SLEEK LIVE TELEMETRY RIBBON & EXPANDABLE MONITOR -->
-      <aside id="telemetryRibbonPane" class="w-full lg:w-[33%] h-full flex flex-col min-h-0">
+      <!-- RIGHT HALF (50% WIDTH): FULL CLINICAL MULTI-PARAMETER MONITOR VIEW -->
+      <aside id="telemetryRibbonPane" class="w-full lg:w-1/2 h-full flex flex-col min-h-0 bg-[#05080f] p-2 rounded-2xl border-2 border-[#0066cc] shadow-xl overflow-hidden">
 
-        <!-- White & Blue Ribbon Header with Bright Orange Expand Action -->
-        <div id="ribbonTopHeaderBar" class="flex items-center justify-between gap-1.5 bg-white border border-blue-200 px-2.5 py-1.5 rounded-2xl shrink-0 shadow-sm">
+        <!-- Bedside Monitor Top Patient, Alarm & Mode Controls Bar -->
+        <div id="globalAlarmBanner" class="w-full px-2.5 py-1 rounded-xl border border-slate-800 bg-[#0b1220] flex flex-wrap items-center justify-between gap-1.5 shrink-0">
           <div class="flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-[#ff6b00] animate-pulse"></span>
-            <span class="text-xs font-extrabold tracking-wide text-[#0052a3]">VITALS <span class="text-[#ff6b00]">MONITOR</span></span>
-            <span id="telemetrySourceBadge" class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-[#0066cc] border border-blue-200">SIM</span>
+            <span class="text-[11px] font-extrabold text-white tracking-wide">PATIENT MONITOR</span>
+            <span id="telemetrySourceBadge" class="text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded bg-[#0066cc] text-white">SIM</span>
+            <span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-200 font-mono-num text-[10px] font-bold hidden xl:inline" id="monBedBadge">WARD</span>
+            <span class="text-[10px] font-bold text-orange-300 truncate max-w-[110px]" id="monPatientBadge">NEW PATIENT</span>
+            <span class="hidden" id="monMrnBadge"></span>
+            <span class="hidden" id="monCatBadge">ADULT</span>
           </div>
+
+          <div class="flex items-center gap-1.5 flex-1 justify-center min-w-[140px]">
+            <span id="alarmStatusDot" class="w-2 h-2 rounded-full bg-[#00ff66] shadow-[0_0_8px_#00ff66] shrink-0"></span>
+            <span id="alarmStatusText" class="text-[10px] font-extrabold tracking-wider text-emerald-300 truncate">ALL PARAMETERS NORMAL</span>
+          </div>
+
           <div class="flex items-center gap-1">
-            <button onclick="openEcgAiAnalysis(true)" title="Run AI ECG Rhythm & Morphology Diagnosis" class="px-2 py-1 rounded-full text-[10px] font-extrabold bg-[#0066cc] hover:bg-blue-700 text-white cursor-pointer transition shadow-xs flex items-center gap-1">
-              <span>AI ECG</span>
+            <button onclick="openEcgAiAnalysis(true)" title="Run AI ECG Rhythm & Morphology Diagnosis" class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#0066cc] hover:bg-blue-700 text-white cursor-pointer transition">
+              AI ECG
             </button>
-            <button id="btnToggleAudioBeepRibbon" class="px-2 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-[#0066cc] border border-blue-200 cursor-pointer">
+            <button id="btnToggleAudioBeepRibbon" class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-800 text-emerald-300 border border-slate-700 cursor-pointer">
               Beep: ON
             </button>
-            <button id="btnRibbonMuteAlarm" class="px-2 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer">
+            <button id="btnSilenceAlarm" class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 cursor-pointer">
               Mute
             </button>
-            <button id="btnExpandMonitor" class="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-[#ff6b00] hover:bg-orange-600 text-white transition cursor-pointer shadow-xs">
-              Expand
+            <button id="btnExpandMonitor" class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-[#ff6b00] hover:bg-orange-600 text-white cursor-pointer transition">
+              Full Screen
             </button>
           </div>
         </div>
 
-        <!-- COMPACT SIDE TELEMETRY RIBBON (HIGH-CONTRAST CLINICAL DISPLAY) -->
-        <div id="ribbonCompactView" class="flex-1 min-h-0 flex flex-col justify-between gap-2 pt-2">
-          <!-- Waveforms -->
-          <div class="grid grid-rows-2 gap-2 flex-[44] min-h-0">
-            <div class="bg-[#060b14] border-2 border-blue-200 rounded-2xl relative overflow-hidden shadow-inner">
-              <div class="absolute top-1.5 left-2.5 right-2.5 z-10 flex items-center justify-between text-[10px] font-bold text-[#00ff66] pointer-events-none">
-                <div class="flex items-center gap-1.5 bg-[#060b14]/85 px-2 py-0.5 rounded-full">
-                  <span>ECG II</span>
-                  <span class="text-slate-400 font-normal">25mm/s</span>
-                </div>
-                <span id="ribEcgAiSummaryBadge" class="bg-emerald-950/90 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full text-[9px] font-mono-num">NSR • QTc 412ms</span>
-              </div>
-              <canvas id="canvasRibbonEcg"></canvas>
-            </div>
-            <div class="bg-[#060b14] border-2 border-blue-200 rounded-2xl relative overflow-hidden shadow-inner">
-              <div class="absolute top-1.5 left-2.5 right-2.5 z-10 flex items-center justify-between text-[10px] font-bold text-[#00e5ff] bg-[#060b14]/85 px-2.5 py-0.5 rounded-full pointer-events-none">
-                <div class="flex items-center gap-1.5">
-                  <span>PLETH SpO₂</span>
-                  <span class="text-slate-400 font-normal">PI <span id="ribPi">3.4%</span></span>
-                </div>
-                <div class="flex items-center gap-2 font-mono-num">
-                  <span class="text-sm font-extrabold text-[#00e5ff] glow-spo2"><span id="ribWaveSpo2">98</span><span class="text-[10px] font-bold">%</span></span>
-                  <span class="text-cyan-300 text-[10px]">PR <strong id="ribWavePr">78</strong></span>
-                </div>
-              </div>
-              <canvas id="canvasRibbonPleth"></canvas>
-            </div>
-          </div>
-
-          <!-- Clean Numeric Vital Cards -->
-          <div class="flex-[56] min-h-0 grid grid-cols-2 gap-2">
-            <!-- HR Card -->
-            <div id="ribTileHr" class="bg-[#0b1322] border border-slate-800 rounded-2xl p-2.5 flex flex-col justify-between shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-[#00ff66]">HR <span class="text-[10px] font-normal text-slate-400">bpm</span></span>
-                <span id="ribHeartIcon" class="text-[#00ff66] text-sm">♥</span>
-              </div>
-              <div id="ribValHr" class="font-mono-num text-3xl xl:text-4xl font-extrabold text-[#00ff66] glow-ecg leading-none">78</div>
-              <div class="text-[10px] font-mono-num text-slate-400 flex justify-between">
-                <span>ST <span id="ribValSt" class="text-emerald-300">+0.02</span></span>
-                <span class="text-slate-500">120/50</span>
-              </div>
-            </div>
-
-            <!-- SpO2 Card -->
-            <div id="ribTileSpo2" class="bg-[#0b1322] border border-slate-800 rounded-2xl p-2.5 flex flex-col justify-between shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-[#00e5ff]">SpO₂ <span class="text-[10px] font-normal text-slate-400">%</span></span>
-                <span class="text-[10px] font-mono-num text-cyan-300">PR <strong id="ribValPr">78</strong></span>
-              </div>
-              <div id="ribValSpo2" class="font-mono-num text-3xl xl:text-4xl font-extrabold text-[#00e5ff] glow-spo2 leading-none">98</div>
-              <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                <div id="ribSpo2Bar" class="h-full bg-[#00e5ff] transition-all duration-150" style="width: 65%"></div>
-              </div>
-            </div>
-
-            <!-- NIBP Card -->
-            <div id="ribTileNibp" class="col-span-2 bg-[#0b1322] border border-slate-800 rounded-2xl p-2.5 flex flex-col justify-between shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-white">NIBP <span class="text-[10px] font-normal text-slate-400">mmHg</span></span>
-                <span id="ribNibpStatus" class="text-[10px] font-mono-num text-orange-300">READY</span>
-                <button id="btnRibNibp" class="px-3 py-0.5 rounded-full text-[10px] font-bold uppercase bg-[#ff6b00] hover:bg-orange-600 text-white cursor-pointer transition">
-                  Start NIBP
-                </button>
-              </div>
-              <div class="flex items-baseline justify-between my-0.5">
-                <div class="font-mono-num text-2xl xl:text-3xl font-extrabold text-white">
-                  <span id="ribValSys">122</span><span class="text-slate-500">/</span><span id="ribValDia">78</span>
-                </div>
-                <div class="font-mono-num text-sm font-bold text-[#ff6b00]">
-                  MAP (<span id="ribValMap">93</span>)
-                </div>
-              </div>
-              <div id="ribCuffBarWrap" class="w-full h-1 bg-slate-800 rounded-full overflow-hidden hidden">
-                <div id="ribCuffBar" class="h-full bg-[#ff6b00]" style="width: 0%"></div>
-              </div>
-            </div>
-
-            <!-- RESP Card -->
-            <div id="ribTileResp" class="bg-[#0b1322] border border-slate-800 rounded-2xl p-2.5 flex flex-col justify-between shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-[#ffd600]">RESP</span>
-                <span class="text-[10px] text-slate-400">rpm</span>
-              </div>
-              <div id="ribValResp" class="font-mono-num text-2xl xl:text-3xl font-extrabold text-[#ffd600] glow-resp leading-none">16</div>
-              <div class="text-[10px] text-amber-200/70 font-medium">IMPEDANCE</div>
-            </div>
-
-            <!-- TEMP Card -->
-            <div id="ribTileTemp" class="bg-[#0b1322] border border-slate-800 rounded-2xl p-2.5 flex flex-col justify-between shadow-sm min-w-0">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-[#e040fb]">TEMP</span>
-                <span class="text-[10px] font-bold text-fuchsia-300">°C</span>
-              </div>
-              <div class="font-mono-num flex flex-col gap-0.5 my-0.5">
-                <div class="flex items-baseline justify-between gap-1">
-                  <span class="text-[10px] font-bold text-slate-400">T1</span>
-                  <span id="ribValTemp1" class="text-xl xl:text-2xl font-extrabold text-[#e040fb] glow-temp leading-none">36.8</span>
-                </div>
-                <div class="flex items-baseline justify-between gap-1">
-                  <span class="text-[10px] font-bold text-slate-400">T2</span>
-                  <span class="text-xs font-bold text-fuchsia-300 leading-none"><span id="ribValTemp2">36.6</span>°</span>
-                </div>
-              </div>
-              <div class="text-[9px] text-fuchsia-300/70 font-medium tracking-wide">DUAL PROBE</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- =================================================================== -->
-        <!-- EXPANDABLE FULL-SCREEN ICU MULTI-PARAMETER VITAL MONITOR (100VH)    -->
-        <!-- =================================================================== -->
-        <div id="monitorExpandedView" class="hidden flex-1 h-full min-h-0 flex-col gap-1.5 bg-[#05080f] p-2 rounded-2xl border-2 border-[#0066cc] shadow-2xl overflow-hidden">
-          <!-- Authentic Bedside Clinical Monitor Top Status & Alarm Strip -->
-          <div id="globalAlarmBanner" class="w-full px-3 py-1 rounded-xl border border-slate-800 bg-[#0b1220] flex flex-wrap items-center justify-between gap-2 shrink-0">
-            <div class="flex items-center gap-2.5">
-              <span class="px-2 py-0.5 rounded bg-[#0066cc] text-white font-mono-num text-[11px] font-extrabold tracking-wider" id="monBedBadge">WARD-B2</span>
-              <span class="text-xs font-extrabold text-slate-100 tracking-wide" id="monPatientBadge">AARAV SHARMA</span>
-              <span class="text-[11px] font-mono-num text-slate-400 hidden sm:inline" id="monMrnBadge">MRN-91482</span>
-              <span class="px-2 py-0.5 rounded bg-orange-500/20 text-[#ff9100] border border-orange-500/40 text-[10px] font-extrabold uppercase" id="monCatBadge">ADULT</span>
-            </div>
-
-            <div class="flex items-center gap-2 flex-1 justify-center min-w-[200px]">
-              <span id="alarmStatusDot" class="w-2.5 h-2.5 rounded-full bg-[#00ff66] shadow-[0_0_8px_#00ff66] shrink-0"></span>
-              <span id="alarmStatusText" class="text-xs font-extrabold tracking-wider text-emerald-300 truncate">ALL PARAMETERS NORMAL — CONTINUOUS MONITORING</span>
-            </div>
-
-            <button id="btnSilenceAlarm" class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold uppercase bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 shrink-0 cursor-pointer transition">
-              Audio Mute
-            </button>
-          </div>
-
-          <!-- 70% Left 4-Waveform Stack / 30% Right Numeric Parameter Tiles -->
-          <div class="flex-1 min-h-0 flex flex-col lg:flex-row gap-1.5 overflow-hidden">
-            <!-- Left 70%: 4 Oscilloscope Channels -->
-            <div class="w-full lg:w-[70%] h-full flex flex-col gap-1 min-h-0">
-              <!-- 1. ECG TRACE 1 -->
-              <div class="flex-1 min-h-0 bg-[#06090e] border border-slate-800 rounded-xl relative overflow-hidden">
-                <div class="absolute top-1 left-2 right-2 z-10 flex flex-wrap items-center justify-between gap-1 text-xs">
-                  <div class="flex items-center gap-1.5 bg-[#06090e]/90 px-2 py-0.5 rounded border border-slate-800">
-                    <span class="font-extrabold text-[#00ff66]">ECG 1</span>
-                    <select id="selEcg1Lead" class="bg-slate-900 text-[#00ff66] text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer">
-                      <option value="II" selected>Lead II</option>
-                      <option value="I">Lead I</option>
-                      <option value="III">Lead III</option>
-                      <option value="aVR">aVR</option>
-                      <option value="aVL">aVL</option>
-                      <option value="aVF">aVF</option>
-                      <option value="V">Lead V</option>
-                    </select>
-                    <select id="selEcgGain" class="bg-slate-900 text-slate-200 text-[11px] px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer">
-                      <option value="1">x0.25</option>
-                      <option value="2">x0.5</option>
-                      <option value="3" selected>x1.0 (10mm/mV)</option>
-                      <option value="4">x2.0</option>
-                    </select>
-                    <select id="selEcgFilter" class="bg-slate-900 text-slate-200 text-[11px] px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer">
-                      <option value="1">Operation (1-25Hz)</option>
-                      <option value="2" selected>Monitor (0.5-75Hz)</option>
-                      <option value="3">Diagnosis (0.05-100Hz)</option>
-                    </select>
-                  </div>
-                  <div class="flex items-center gap-1.5 bg-[#06090e]/90 px-2 py-0.5 rounded border border-slate-800">
-                    <span class="text-[10px] text-slate-400">Sweep:</span>
-                    <select id="selSweepSpeed" class="bg-slate-900 text-slate-200 text-[11px] px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer">
-                      <option value="12.5">12.5 mm/s</option>
-                      <option value="25" selected>25.0 mm/s</option>
-                      <option value="50">50.0 mm/s</option>
-                    </select>
-                  </div>
-                </div>
-                <canvas id="canvasFullEcg1"></canvas>
-              </div>
-
-              <!-- 2. ECG TRACE 2 -->
-              <div class="flex-1 min-h-0 bg-[#06090e] border border-slate-800 rounded-xl relative overflow-hidden">
-                <div class="absolute top-1 left-2 z-10 flex items-center gap-1.5 bg-[#06090e]/90 px-2 py-0.5 rounded border border-slate-800 text-xs">
-                  <span class="font-extrabold text-[#00ff66]">ECG 2</span>
-                  <select id="selEcg2Lead" class="bg-slate-900 text-[#00ff66] text-[11px] font-bold px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer">
-                    <option value="I" selected>Lead I</option>
-                    <option value="II">Lead II</option>
+        <!-- HALF-SCREEN & EXPANDABLE CLINICAL MONITOR CORE (WAVEFORMS LEFT / NUMERIC TILES RIGHT) -->
+        <div id="monitorExpandedView" class="flex-1 min-h-0 flex flex-col sm:flex-row gap-1.5 pt-1.5 overflow-hidden">
+          <!-- Left 65%: 4 Real-Time Oscilloscope Channels -->
+          <div class="w-full sm:w-[65%] h-full flex flex-col gap-1 min-h-0">
+            <!-- 1. ECG TRACE 1 -->
+            <div class="flex-1 min-h-0 bg-[#06090e] border border-slate-800 rounded-xl relative overflow-hidden">
+              <div class="absolute top-1 left-2 right-2 z-10 flex flex-wrap items-center justify-between gap-1 text-[10px]">
+                <div class="flex items-center gap-1 bg-[#06090e]/90 px-1.5 py-0.5 rounded border border-slate-800">
+                  <span class="font-extrabold text-[#00ff66]">ECG 1</span>
+                  <select id="selEcg1Lead" class="bg-slate-900 text-[#00ff66] text-[10px] font-bold px-1 py-0.2 rounded border border-slate-700 cursor-pointer">
+                    <option value="II" selected>Lead II</option>
+                    <option value="I">Lead I</option>
                     <option value="III">Lead III</option>
                     <option value="aVR">aVR</option>
                     <option value="aVL">aVL</option>
                     <option value="aVF">aVF</option>
                     <option value="V">Lead V</option>
                   </select>
-                  <span class="text-[10px] font-mono-num text-slate-400">1mV CAL</span>
+                  <select id="selEcgGain" class="bg-slate-900 text-slate-200 text-[10px] px-1 py-0.2 rounded border border-slate-700 cursor-pointer">
+                    <option value="1">x0.25</option>
+                    <option value="2">x0.5</option>
+                    <option value="3" selected>x1.0</option>
+                    <option value="4">x2.0</option>
+                  </select>
+                  <select id="selEcgFilter" class="hidden xl:inline-block bg-slate-900 text-slate-200 text-[10px] px-1 py-0.2 rounded border border-slate-700 cursor-pointer">
+                    <option value="1">Op</option>
+                    <option value="2" selected>Mon</option>
+                    <option value="3">Diag</option>
+                  </select>
                 </div>
-                <canvas id="canvasFullEcg2"></canvas>
-              </div>
-
-              <!-- 3. SpO2 PLETHYSMOGRAPH -->
-              <div class="flex-1 min-h-0 bg-[#06090e] border border-slate-800 rounded-xl relative overflow-hidden">
-                <div class="absolute top-1 left-2 right-2 z-10 flex items-center justify-between text-xs pointer-events-none">
-                  <div class="flex items-center gap-2.5 bg-[#06090e]/90 px-2.5 py-0.5 rounded border border-slate-800">
-                    <span class="font-extrabold text-[#00e5ff]">PLETH (SpO₂)</span>
-                    <span class="font-mono-num text-base font-extrabold text-[#00e5ff] glow-spo2"><span id="fullWaveSpo2">98</span><span class="text-[11px] font-bold">%</span></span>
-                    <span class="font-mono-num text-[11px] text-cyan-300">PR <strong id="fullWavePr">78</strong></span>
-                    <span class="text-[10px] text-cyan-300/80 hidden sm:inline">25.0 mm/s</span>
-                  </div>
-                  <div class="flex items-center gap-1.5 bg-[#06090e]/90 px-2 py-0.5 rounded border border-slate-800">
-                    <span class="text-[10px] text-slate-400 uppercase">Signal Quality</span>
-                    <div class="flex items-end gap-0.5 h-3">
-                      <span class="w-1 h-1.5 bg-[#00e5ff] rounded-xs"></span>
-                      <span class="w-1 h-2 bg-[#00e5ff] rounded-xs"></span>
-                      <span class="w-1 h-2.5 bg-[#00e5ff] rounded-xs"></span>
-                      <span class="w-1 h-3 bg-[#00e5ff] rounded-xs"></span>
-                    </div>
-                  </div>
+                <div class="flex items-center gap-1 bg-[#06090e]/90 px-1.5 py-0.5 rounded border border-slate-800">
+                  <span id="ribEcgAiSummaryBadge" class="text-[9px] font-mono-num text-emerald-300 font-bold">NSR • QTc 412ms</span>
+                  <select id="selSweepSpeed" class="bg-slate-900 text-slate-200 text-[10px] px-1 py-0.2 rounded border border-slate-700 cursor-pointer">
+                    <option value="12.5">12.5</option>
+                    <option value="25" selected>25mm/s</option>
+                    <option value="50">50</option>
+                  </select>
                 </div>
-                <canvas id="canvasFullPleth"></canvas>
               </div>
-
-              <!-- 4. RESPIRATION IMPEDANCE -->
-              <div class="flex-1 min-h-0 bg-[#06090e] border border-slate-800 rounded-xl relative overflow-hidden">
-                <div class="absolute top-1 left-2 z-10 flex items-center gap-2 bg-[#06090e]/90 px-2 py-0.5 rounded border border-slate-800 text-xs">
-                  <span class="font-extrabold text-[#ffd600]">RESP (IMP)</span>
-                  <span class="text-[10px] text-amber-200/70">12.5 mm/s | Lead II</span>
-                </div>
-                <canvas id="canvasFullResp"></canvas>
-              </div>
+              <canvas id="canvasFullEcg1"></canvas>
             </div>
 
-            <!-- Right 30%: Full Bedside Numeric Vital Tiles -->
-            <div class="w-full lg:w-[30%] h-full flex flex-col gap-1 min-h-0">
-              <!-- HR Tile -->
-              <div id="fullTileEcg" class="flex-1 min-h-0 bg-[#0b1220] border border-slate-800 rounded-xl px-2.5 py-1.5 flex flex-col justify-between transition-colors">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-xs font-extrabold text-[#00ff66]">HR</span>
-                    <span class="text-[11px] text-slate-400">bpm</span>
-                    <span id="ecgStatusFlag" class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">NORMAL</span>
-                  </div>
-                  <div class="flex items-center gap-1.5">
-                    <span id="fullHeartIcon" class="text-[#00ff66] text-base">♥</span>
-                    <button onclick="openAlarmModal()" class="text-[10px] font-mono-num text-slate-300 hover:text-white bg-slate-800 px-1.5 py-0.5 rounded cursor-pointer">
-                      <span id="lblHrHigh">120</span>/<span id="lblHrLow">50</span>
-                    </button>
-                  </div>
-                </div>
-                <div class="flex items-baseline justify-between">
-                  <div id="fullValHr" class="font-mono-num text-3xl xl:text-4xl font-extrabold text-[#00ff66] glow-ecg leading-none">78</div>
-                  <div class="text-right font-mono-num text-[10px] text-slate-400 leading-tight">
-                    <div>ST-II <span id="fullValSt" class="text-[#00ff66] font-bold">+0.02</span> mV</div>
-                    <div>PVC <span class="text-slate-200 font-bold">0</span> /min</div>
-                  </div>
-                </div>
+            <!-- 2. ECG TRACE 2 -->
+            <div class="flex-1 min-h-0 bg-[#06090e] border border-slate-800 rounded-xl relative overflow-hidden">
+              <div class="absolute top-1 left-2 z-10 flex items-center gap-1.5 bg-[#06090e]/90 px-1.5 py-0.5 rounded border border-slate-800 text-[10px]">
+                <span class="font-extrabold text-[#00ff66]">ECG 2</span>
+                <select id="selEcg2Lead" class="bg-slate-900 text-[#00ff66] text-[10px] font-bold px-1 py-0.2 rounded border border-slate-700 cursor-pointer">
+                  <option value="I" selected>Lead I</option>
+                  <option value="II">Lead II</option>
+                  <option value="III">Lead III</option>
+                  <option value="aVR">aVR</option>
+                  <option value="aVL">aVL</option>
+                  <option value="aVF">aVF</option>
+                  <option value="V">Lead V</option>
+                </select>
+                <span class="text-[9px] font-mono-num text-slate-400">1mV CAL</span>
               </div>
+              <canvas id="canvasFullEcg2"></canvas>
+            </div>
 
-              <!-- SpO2 Tile -->
-              <div id="fullTileSpo2" class="flex-1 min-h-0 bg-[#0b1220] border border-slate-800 rounded-xl px-2.5 py-1.5 flex flex-col justify-between transition-colors">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-xs font-extrabold text-[#00e5ff]">SpO₂</span>
-                    <span class="text-[11px] text-slate-400">%</span>
-                    <span id="spo2StatusFlag" class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">OK</span>
-                  </div>
-                  <button onclick="openAlarmModal()" class="text-[10px] font-mono-num text-slate-300 hover:text-white bg-slate-800 px-1.5 py-0.5 rounded cursor-pointer">
-                    100/<span id="lblSpo2Low">90</span>
-                  </button>
+            <!-- 3. SpO2 PLETHYSMOGRAPH WITH LIVE SPO2 IN FRONT -->
+            <div class="flex-1 min-h-0 bg-[#06090e] border border-slate-800 rounded-xl relative overflow-hidden">
+              <div class="absolute top-1 left-2 right-2 z-10 flex items-center justify-between text-[10px] pointer-events-none">
+                <div class="flex items-center gap-2 bg-[#06090e]/90 px-2 py-0.5 rounded border border-slate-800">
+                  <span class="font-extrabold text-[#00e5ff]">PLETH (SpO₂)</span>
+                  <span class="font-mono-num text-sm font-extrabold text-[#00e5ff] glow-spo2"><span id="fullWaveSpo2">98</span><span class="text-[10px] font-bold">%</span></span>
+                  <span class="font-mono-num text-[10px] text-cyan-300">PR <strong id="fullWavePr">78</strong></span>
                 </div>
-                <div class="flex items-baseline justify-between">
-                  <div id="fullValSpo2" class="font-mono-num text-3xl xl:text-4xl font-extrabold text-[#00e5ff] glow-spo2 leading-none">98</div>
-                  <div class="text-right font-mono-num text-[10px] leading-tight">
-                    <div class="text-cyan-300">PR <strong id="fullValPr" class="text-base">78</strong> bpm</div>
-                    <div class="text-slate-400">PI <span id="fullValPi" class="text-cyan-200 font-bold">3.4%</span></div>
+                <div class="flex items-center gap-1 bg-[#06090e]/90 px-1.5 py-0.5 rounded border border-slate-800">
+                  <span class="text-[9px] text-slate-400">SQI</span>
+                  <div class="flex items-end gap-0.5 h-2.5">
+                    <span class="w-1 h-1 bg-[#00e5ff] rounded-xs"></span>
+                    <span class="w-1 h-1.5 bg-[#00e5ff] rounded-xs"></span>
+                    <span class="w-1 h-2 bg-[#00e5ff] rounded-xs"></span>
+                    <span class="w-1 h-2.5 bg-[#00e5ff] rounded-xs"></span>
                   </div>
                 </div>
               </div>
+              <canvas id="canvasFullPleth"></canvas>
+            </div>
 
-              <!-- NIBP Tile -->
-              <div id="fullTileNibp" class="flex-[1.3] min-h-0 bg-[#0b1220] border border-slate-800 rounded-xl px-2.5 py-1.5 flex flex-col justify-between transition-colors">
-                <div class="flex items-center justify-between gap-1">
-                  <span class="text-xs font-extrabold text-white">NIBP <span class="text-slate-400 font-normal">mmHg</span></span>
-                  <div class="flex items-center gap-1">
-                    <select id="selNibpMode" class="bg-slate-900 text-orange-300 text-[10px] font-bold px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer">
-                      <option value="1" selected>Adult</option>
-                      <option value="2">Pediatric</option>
-                      <option value="3">Neonate</option>
-                    </select>
-                    <select id="selNibpInterval" class="bg-slate-900 text-slate-200 text-[10px] px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer">
-                      <option value="0" selected>Manual</option>
-                      <option value="1">1 min</option>
-                      <option value="3">3 min</option>
-                      <option value="5">5 min</option>
-                      <option value="15">15 min</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="flex items-baseline justify-between">
-                  <div class="font-mono-num text-2xl xl:text-3xl font-extrabold text-white leading-none">
-                    <span id="fullValSys">122</span><span class="text-slate-500">/</span><span id="fullValDia">78</span>
-                  </div>
-                  <div class="font-mono-num text-right leading-none">
-                    <span class="text-[9px] text-slate-400 mr-1">MAP</span>
-                    <span class="text-base font-bold text-[#ff6b00]">(<span id="fullValMap">93</span>)</span>
-                  </div>
-                </div>
-                <div class="space-y-0.5">
-                  <div class="flex items-center justify-between text-[10px] font-mono-num">
-                    <span id="fullNibpStatus" class="text-orange-300">READY</span>
-                    <span id="nibpCuffReadout" class="text-orange-300 font-bold hidden">CUFF: 0 mmHg</span>
-                  </div>
-                  <div id="fullCuffBarWrap" class="w-full h-1 bg-slate-800 rounded-full overflow-hidden hidden">
-                    <div id="fullCuffBar" class="h-full bg-[#ff6b00] transition-all duration-100" style="width: 0%"></div>
-                  </div>
-                </div>
-                <button id="btnFullNibp" class="w-full py-1 rounded-lg font-extrabold text-[11px] uppercase bg-[#ff6b00] hover:bg-orange-600 text-white cursor-pointer transition">
-                  Start NIBP Measurement
-                </button>
+            <!-- 4. RESPIRATION IMPEDANCE -->
+            <div class="flex-1 min-h-0 bg-[#06090e] border border-slate-800 rounded-xl relative overflow-hidden">
+              <div class="absolute top-1 left-2 z-10 flex items-center gap-1.5 bg-[#06090e]/90 px-1.5 py-0.5 rounded border border-slate-800 text-[10px]">
+                <span class="font-extrabold text-[#ffd600]">RESP (IMP)</span>
+                <span class="text-[9px] text-amber-200/70">12.5 mm/s | Lead II</span>
               </div>
-
-              <!-- RESP & TEMP Split Tiles -->
-              <div id="fullTileRespTemp" class="flex-1 grid grid-cols-2 gap-1.5 min-h-0">
-                <div id="fullTileResp" class="bg-[#0b1220] border border-slate-800 rounded-xl px-2.5 py-1.5 flex flex-col justify-between transition-colors min-w-0 min-h-0">
-                  <div class="flex items-center justify-between">
-                    <span class="text-xs font-extrabold text-[#ffd600]">RESP <span class="text-[10px] text-slate-400 font-normal">rpm</span></span>
-                    <button onclick="openAlarmModal()" class="text-[9px] font-mono-num text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded cursor-pointer"><span id="lblRespHigh">30</span>/<span id="lblRespLow">8</span></button>
-                  </div>
-                  <div id="fullValResp" class="font-mono-num text-2xl xl:text-3xl font-extrabold text-[#ffd600] glow-resp leading-none">16</div>
-                  <span class="text-[9px] text-amber-200/70 font-semibold">IMPEDANCE OK</span>
-                </div>
-                <div id="fullTileTemp" class="bg-[#0b1220] border border-slate-800 rounded-xl px-2.5 py-1.5 flex flex-col justify-between transition-colors min-w-0 min-h-0">
-                  <div class="flex items-center justify-between">
-                    <span class="text-xs font-extrabold text-[#e040fb]">TEMP <span class="text-[10px] text-slate-400 font-normal">°C</span></span>
-                    <span class="text-[9px] font-mono-num font-bold text-fuchsia-300 bg-fuchsia-950/60 border border-fuchsia-500/30 px-1 py-0.5 rounded">ΔT <span id="valTempDelta">0.2</span></span>
-                  </div>
-                  <div class="font-mono-num flex flex-col gap-0.5 my-auto">
-                    <div class="flex items-baseline justify-between">
-                      <span class="text-[10px] font-bold text-slate-400">T1</span>
-                      <span id="fullValTemp1" class="text-xl xl:text-2xl font-extrabold text-[#e040fb] glow-temp leading-none">36.8</span>
-                    </div>
-                    <div class="flex items-baseline justify-between border-t border-slate-800/80 pt-0.5">
-                      <span class="text-[10px] font-bold text-slate-400">T2</span>
-                      <span class="text-xs xl:text-sm font-bold text-fuchsia-200 leading-none"><span id="fullValTemp2">36.6</span> °C</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <canvas id="canvasFullResp"></canvas>
             </div>
           </div>
 
-          <!-- Bottom Clinical Soft-Key Control Dock -->
-          <div class="bg-[#0b1220] border border-slate-800 px-3 py-1 rounded-xl flex flex-wrap items-center justify-between gap-2 text-xs shrink-0">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <button onclick="openEcgAiAnalysis(true)" class="px-3 py-1 rounded-lg bg-gradient-to-r from-[#ff6b00] to-orange-500 hover:from-orange-600 hover:to-orange-500 font-extrabold text-white cursor-pointer transition shadow-xs">AI ECG Analysis</button>
-              <button id="btnFullFreeze" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold text-slate-100 cursor-pointer transition">Freeze Waves</button>
-              <button id="btnAudioBeep" class="px-3 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 font-bold text-emerald-300 cursor-pointer transition">QRS Beep: ON</button>
-              <button onclick="openAlarmModal()" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold text-slate-100 cursor-pointer transition">Alarm Limits</button>
-              <button onclick="openHistoryModal()" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold text-slate-100 cursor-pointer transition">Trend Log (<span id="historyCountBadge">0</span>)</button>
-              <button onclick="openProtocolModal()" class="px-3 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/40 font-bold text-sky-300 cursor-pointer transition">Serial Hex Inspector</button>
+          <!-- Right 35%: Real-Time Bedside Numeric Vital Tiles -->
+          <div class="w-full sm:w-[35%] h-full flex flex-col gap-1 min-h-0">
+            <!-- HR Tile -->
+            <div id="fullTileEcg" class="flex-1 min-h-0 bg-[#0b1220] border border-slate-800 rounded-xl px-2.5 py-1.5 flex flex-col justify-between transition-colors">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span class="text-xs font-extrabold text-[#00ff66]">HR</span>
+                  <span class="text-[10px] text-slate-400">bpm</span>
+                  <span id="ecgStatusFlag" class="px-1 py-0.2 rounded text-[8px] font-bold uppercase bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">NORMAL</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span id="fullHeartIcon" class="text-[#00ff66] text-sm">♥</span>
+                  <button onclick="openAlarmModal()" class="text-[9px] font-mono-num text-slate-300 hover:text-white bg-slate-800 px-1 py-0.5 rounded cursor-pointer">
+                    <span id="lblHrHigh">120</span>/<span id="lblHrLow">50</span>
+                  </button>
+                </div>
+              </div>
+              <div class="flex items-baseline justify-between">
+                <div id="fullValHr" class="font-mono-num text-3xl xl:text-4xl font-extrabold text-[#00ff66] glow-ecg leading-none">78</div>
+                <div class="text-right font-mono-num text-[9px] text-slate-400 leading-tight">
+                  <div>ST <span id="fullValSt" class="text-[#00ff66] font-bold">+0.02</span></div>
+                  <div>PVC <span class="text-slate-200 font-bold">0</span></div>
+                </div>
+              </div>
             </div>
-            <button onclick="toggleFullMonitor(false)" class="px-3.5 py-1 rounded-lg bg-[#0066cc] hover:bg-blue-600 text-white font-extrabold cursor-pointer transition">
-              Return to Video Consultation
-            </button>
+
+            <!-- SpO2 Tile -->
+            <div id="fullTileSpo2" class="flex-1 min-h-0 bg-[#0b1220] border border-slate-800 rounded-xl px-2.5 py-1.5 flex flex-col justify-between transition-colors">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <span class="text-xs font-extrabold text-[#00e5ff]">SpO₂</span>
+                  <span class="text-[10px] text-slate-400">%</span>
+                  <span id="spo2StatusFlag" class="px-1 py-0.2 rounded text-[8px] font-bold uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">OK</span>
+                </div>
+                <button onclick="openAlarmModal()" class="text-[9px] font-mono-num text-slate-300 hover:text-white bg-slate-800 px-1 py-0.5 rounded cursor-pointer">
+                  100/<span id="lblSpo2Low">90</span>
+                </button>
+              </div>
+              <div class="flex items-baseline justify-between">
+                <div id="fullValSpo2" class="font-mono-num text-3xl xl:text-4xl font-extrabold text-[#00e5ff] glow-spo2 leading-none">98</div>
+                <div class="text-right font-mono-num text-[9px] leading-tight">
+                  <div class="text-cyan-300">PR <strong id="fullValPr" class="text-sm">78</strong></div>
+                  <div class="text-slate-400">PI <span id="fullValPi" class="text-cyan-200 font-bold">3.4%</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- NIBP Tile -->
+            <div id="fullTileNibp" class="flex-[1.35] min-h-0 bg-[#0b1220] border border-slate-800 rounded-xl px-2.5 py-1.5 flex flex-col justify-between transition-colors">
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-xs font-extrabold text-white">NIBP <span class="text-[9px] text-slate-400 font-normal">mmHg</span></span>
+                <div class="flex items-center gap-1">
+                  <select id="selNibpMode" class="bg-slate-900 text-orange-300 text-[9px] font-bold px-1 py-0.5 rounded border border-slate-700 cursor-pointer">
+                    <option value="1" selected>Adult</option>
+                    <option value="2">Ped</option>
+                    <option value="3">Neo</option>
+                  </select>
+                  <select id="selNibpInterval" class="bg-slate-900 text-slate-200 text-[9px] px-1 py-0.5 rounded border border-slate-700 cursor-pointer">
+                    <option value="0" selected>Man</option>
+                    <option value="1">1m</option>
+                    <option value="3">3m</option>
+                    <option value="5">5m</option>
+                    <option value="15">15m</option>
+                  </select>
+                </div>
+              </div>
+              <div class="flex items-baseline justify-between">
+                <div class="font-mono-num text-2xl xl:text-3xl font-extrabold text-white leading-none">
+                  <span id="fullValSys">122</span><span class="text-slate-500">/</span><span id="fullValDia">78</span>
+                </div>
+                <div class="font-mono-num text-right leading-none">
+                  <span class="text-[8px] text-slate-400 block">MAP</span>
+                  <span class="text-sm font-bold text-[#ff6b00]">(<span id="fullValMap">93</span>)</span>
+                </div>
+              </div>
+              <div class="space-y-0.5">
+                <div class="flex items-center justify-between text-[9px] font-mono-num">
+                  <span id="fullNibpStatus" class="text-orange-300">READY</span>
+                  <span id="nibpCuffReadout" class="text-orange-300 font-bold hidden">CUFF: 0</span>
+                </div>
+                <div id="fullCuffBarWrap" class="w-full h-1 bg-slate-800 rounded-full overflow-hidden hidden">
+                  <div id="fullCuffBar" class="h-full bg-[#ff6b00] transition-all duration-100" style="width: 0%"></div>
+                </div>
+              </div>
+              <button id="btnFullNibp" class="w-full py-1 rounded-lg font-extrabold text-[10px] uppercase bg-[#ff6b00] hover:bg-orange-600 text-white cursor-pointer transition">
+                Start NIBP
+              </button>
+            </div>
+
+            <!-- RESP & TEMP Split Tiles -->
+            <div id="fullTileRespTemp" class="flex-1 grid grid-cols-2 gap-1 min-h-0">
+              <div id="fullTileResp" class="bg-[#0b1220] border border-slate-800 rounded-xl px-2 py-1.5 flex flex-col justify-between transition-colors min-w-0 min-h-0">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-extrabold text-[#ffd600]">RESP</span>
+                  <button onclick="openAlarmModal()" class="text-[8px] font-mono-num text-slate-300 bg-slate-800 px-1 py-0.5 rounded cursor-pointer"><span id="lblRespHigh">30</span>/<span id="lblRespLow">8</span></button>
+                </div>
+                <div id="fullValResp" class="font-mono-num text-2xl xl:text-3xl font-extrabold text-[#ffd600] glow-resp leading-none">16</div>
+                <span class="text-[8px] text-amber-200/70 font-semibold">rpm • IMP</span>
+              </div>
+              <div id="fullTileTemp" class="bg-[#0b1220] border border-slate-800 rounded-xl px-2 py-1.5 flex flex-col justify-between transition-colors min-w-0 min-h-0">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-extrabold text-[#e040fb]">TEMP</span>
+                  <span class="text-[8px] font-mono-num font-bold text-fuchsia-300">Δ<span id="valTempDelta">0.2</span></span>
+                </div>
+                <div class="font-mono-num flex flex-col gap-0.5 my-auto">
+                  <div class="flex items-baseline justify-between">
+                    <span class="text-[9px] font-bold text-slate-400">T1</span>
+                    <span id="fullValTemp1" class="text-lg xl:text-xl font-extrabold text-[#e040fb] glow-temp leading-none">36.8</span>
+                  </div>
+                  <div class="flex items-baseline justify-between border-t border-slate-800/80 pt-0.5">
+                    <span class="text-[9px] font-bold text-slate-400">T2</span>
+                    <span class="text-[11px] font-bold text-fuchsia-200 leading-none"><span id="fullValTemp2">36.6</span>°</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
+        <!-- Bottom Clinical Soft-Key Control Dock -->
+        <div class="bg-[#0b1220] border border-slate-800 px-2.5 py-1 rounded-xl flex flex-wrap items-center justify-between gap-1.5 text-[10px] shrink-0 mt-1.5">
+          <div class="flex flex-wrap items-center gap-1">
+            <button onclick="openEcgAiAnalysis(true)" class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#ff6b00] to-orange-500 hover:from-orange-600 hover:to-orange-500 font-extrabold text-white cursor-pointer transition">AI ECG Diagnosis</button>
+            <button id="btnFullFreeze" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold text-slate-100 cursor-pointer transition">Freeze</button>
+            <button id="btnAudioBeep" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 font-bold text-emerald-300 cursor-pointer transition">QRS Beep: ON</button>
+            <button onclick="openAlarmModal()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold text-slate-100 cursor-pointer transition">Alarms</button>
+            <button onclick="openHistoryModal()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold text-slate-100 cursor-pointer transition">Log (<span id="historyCountBadge">0</span>)</button>
+            <button onclick="openProtocolModal()" class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/40 font-bold text-sky-300 cursor-pointer transition">Hex Stream</button>
+          </div>
+          <span class="text-[10px] font-mono-num text-slate-400 hidden xl:inline">50/50 Split Active</span>
+        </div>
       </aside>
     </section>
 
@@ -2210,6 +2083,9 @@ ${rawTranscript}`;
 
       if (roleParam === 'patient') {
         switchToPatientPortal();
+      } else if (roleParam === 'doctor') {
+        switchToDoctorConsole();
+        switchStage(2);
       } else {
         switchToDoctorConsole();
       }
@@ -2315,10 +2191,41 @@ ${rawTranscript}`;
       }
     }
 
+    function openDoctorInNewTab() {
+      buildShareableUrls();
+      const url = document.getElementById('shareDoctorUrl').value;
+      const win = window.open(url, '_blank');
+      if (!win) {
+        switchToDoctorConsole();
+        switchStage(2);
+      }
+    }
+
+    function toggleSoapPanelInSplit() {
+      const soapEl = document.getElementById('soapScribeContainer');
+      const videoEl = document.getElementById('videoStageContainer');
+      const btn = document.getElementById('btnToggleSoapDrawer');
+      if (!soapEl || !videoEl) return;
+      const isHidden = soapEl.classList.contains('hidden');
+      if (isHidden) {
+        soapEl.classList.remove('hidden');
+        soapEl.classList.add('flex');
+        videoEl.classList.remove('flex-1');
+        videoEl.classList.add('flex-[64]');
+        if (btn) btn.textContent = 'Hide SOAP';
+      } else {
+        soapEl.classList.add('hidden');
+        soapEl.classList.remove('flex');
+        videoEl.classList.remove('flex-[64]');
+        videoEl.classList.add('flex-1');
+        if (btn) btn.textContent = 'Show SOAP';
+      }
+    }
+
     function shareViaWhatsApp() {
       buildShareableUrls();
-      const vdoUrl = document.getElementById('shareDirectVdoUrl').value;
-      const msg = encodeURIComponent(`Hello ${AppState.patient.name}, please join your MedLink TeleCare video consultation with ${AppState.patient.doctorName} (Room ${AppState.roomId}): ${vdoUrl}`);
+      const ptUrl = document.getElementById('sharePatientUrl').value;
+      const msg = encodeURIComponent(`Hello ${AppState.patient.name || 'Patient'}, please join your MedLink TeleCare consultation with ${AppState.patient.doctorName} (Room ${AppState.roomId}): ${ptUrl}`);
       window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
 
@@ -2326,7 +2233,7 @@ ${rawTranscript}`;
       buildShareableUrls();
       const qrContainer = document.getElementById('qrCodeContainer');
       qrContainer.innerHTML = '';
-      const mobileUrl = document.getElementById('shareDirectVdoUrl').value;
+      const mobileUrl = document.getElementById('sharePatientUrl').value;
       if (typeof QRCode !== 'undefined') {
         new QRCode(qrContainer, { text: mobileUrl, width: 180, height: 180, colorDark: '#0f172a', colorLight: '#ffffff' });
       }
@@ -2489,26 +2396,18 @@ ${rawTranscript}`;
       AppState.monitorExpanded = typeof expand === 'boolean' ? expand : !AppState.monitorExpanded;
       const leftPane = document.getElementById('consultLeftPane');
       const ribbonPane = document.getElementById('telemetryRibbonPane');
-      const compactView = document.getElementById('ribbonCompactView');
-      const expandedView = document.getElementById('monitorExpandedView');
       const btnExpand = document.getElementById('btnExpandMonitor');
 
       if (AppState.monitorExpanded) {
         leftPane.classList.add('hidden');
-        ribbonPane.classList.remove('lg:w-[33%]');
+        ribbonPane.classList.remove('lg:w-1/2');
         ribbonPane.classList.add('w-full');
-        compactView.classList.add('hidden');
-        expandedView.classList.remove('hidden');
-        expandedView.classList.add('flex');
-        btnExpand.textContent = 'Collapse to Video Ribbon';
+        if (btnExpand) btnExpand.textContent = '50/50 Split';
       } else {
         leftPane.classList.remove('hidden');
         ribbonPane.classList.remove('w-full');
-        ribbonPane.classList.add('lg:w-[33%]');
-        expandedView.classList.add('hidden');
-        expandedView.classList.remove('flex');
-        compactView.classList.remove('hidden');
-        btnExpand.textContent = 'Expand Monitor';
+        ribbonPane.classList.add('lg:w-1/2');
+        if (btnExpand) btnExpand.textContent = 'Full Screen';
       }
       setTimeout(resizeAllScopes, 50);
     }
@@ -2677,13 +2576,11 @@ ${rawTranscript}`;
     function toggleAlarmMuteState() {
       ensureAudioContext();
       AppState.alarmMuted = !AppState.alarmMuted;
-      document.getElementById('btnRibbonMuteAlarm').textContent = AppState.alarmMuted ? 'Muted' : 'Mute';
-      document.getElementById('btnSilenceAlarm').textContent = AppState.alarmMuted ? 'Muted' : 'Audio Mute';
+      document.getElementById('btnSilenceAlarm').textContent = AppState.alarmMuted ? 'Muted' : 'Mute';
     }
 
     document.getElementById('btnToggleAudioBeepRibbon').addEventListener('click', toggleBeepState);
     document.getElementById('btnAudioBeep').addEventListener('click', toggleBeepState);
-    document.getElementById('btnRibbonMuteAlarm').addEventListener('click', toggleAlarmMuteState);
     document.getElementById('btnSilenceAlarm').addEventListener('click', toggleAlarmMuteState);
 
     // ----------------------------------------------------------------------------
@@ -3202,8 +3099,6 @@ ${rawTranscript}`;
     }
 
     const scopes = {
-      ribEcg: new SweepOscilloscope('canvasRibbonEcg', { color: '#00ff66', glowColor: 'rgba(0,255,102,0.5)', minVal: 0, maxVal: 250, isEcg: true, showGrid: true, samplesPerSec: 250 }),
-      ribPleth: new SweepOscilloscope('canvasRibbonPleth', { color: '#00e5ff', glowColor: 'rgba(0,229,255,0.5)', minVal: 0, maxVal: 100, isEcg: false, showGrid: false, samplesPerSec: 62.5 }),
       fullEcg1: new SweepOscilloscope('canvasFullEcg1', { color: '#00ff66', glowColor: 'rgba(0,255,102,0.5)', minVal: 0, maxVal: 250, isEcg: true, showGrid: true, samplesPerSec: 250 }),
       fullEcg2: new SweepOscilloscope('canvasFullEcg2', { color: '#00ff66', glowColor: 'rgba(0,255,102,0.5)', minVal: 0, maxVal: 250, isEcg: true, showGrid: true, samplesPerSec: 250 }),
       fullPleth: new SweepOscilloscope('canvasFullPleth', { color: '#00e5ff', glowColor: 'rgba(0,229,255,0.5)', minVal: 0, maxVal: 100, isEcg: false, showGrid: false, samplesPerSec: 62.5 }),
@@ -3520,31 +3415,20 @@ ${rawTranscript}`;
       const stage2El = document.getElementById('viewStage2');
       const leftPane = document.getElementById('consultLeftPane');
       const ribbonPane = document.getElementById('telemetryRibbonPane');
-      const ribbonTopBar = document.getElementById('ribbonTopHeaderBar');
-      const compactView = document.getElementById('ribbonCompactView');
-      const expandedView = document.getElementById('monitorExpandedView');
       const btnExpand = document.getElementById('btnExpandMonitor');
 
       if (AppState.monitorExpanded) {
-        if (stage2El) { stage2El.classList.remove('p-3'); stage2El.classList.add('p-1.5'); }
+        if (stage2El) { stage2El.classList.remove('p-2.5'); stage2El.classList.add('p-1.5'); }
         leftPane.classList.add('hidden');
-        if (ribbonTopBar) ribbonTopBar.classList.add('hidden');
-        ribbonPane.classList.remove('lg:w-[33%]');
+        ribbonPane.classList.remove('lg:w-1/2');
         ribbonPane.classList.add('w-full', 'h-full');
-        compactView.classList.add('hidden');
-        expandedView.classList.remove('hidden');
-        expandedView.classList.add('flex');
-        btnExpand.textContent = 'Collapse';
+        if (btnExpand) btnExpand.textContent = '50/50 Split';
       } else {
-        if (stage2El) { stage2El.classList.remove('p-1.5'); stage2El.classList.add('p-3'); }
+        if (stage2El) { stage2El.classList.remove('p-1.5'); stage2El.classList.add('p-2.5'); }
         leftPane.classList.remove('hidden');
-        if (ribbonTopBar) ribbonTopBar.classList.remove('hidden');
         ribbonPane.classList.remove('w-full');
-        ribbonPane.classList.add('lg:w-[33%]');
-        expandedView.classList.add('hidden');
-        expandedView.classList.remove('flex');
-        compactView.classList.remove('hidden');
-        btnExpand.textContent = 'Expand';
+        ribbonPane.classList.add('lg:w-1/2');
+        if (btnExpand) btnExpand.textContent = 'Full Screen';
       }
       setTimeout(resizeAllScopes, 50);
     }
@@ -4111,15 +3995,11 @@ SOAP: S: ${soap.s} | O: ${soap.o} | A: ${soap.a}`;
       const respBatch = AppState.waveQueues.resp.splice(0, AppState.waveQueues.resp.length);
 
       if (AppState.role === 'doctor' && AppState.currentStage === 2) {
-        if (!AppState.monitorExpanded) {
-          if (ecg1Batch.length) scopes.ribEcg.renderSamples(ecg1Batch);
-          if (plethBatch.length) scopes.ribPleth.renderSamples(plethBatch);
-        } else {
-          if (ecg1Batch.length) scopes.fullEcg1.renderSamples(ecg1Batch);
-          if (ecg2Batch.length) scopes.fullEcg2.renderSamples(ecg2Batch);
-          if (plethBatch.length) scopes.fullPleth.renderSamples(plethBatch);
-          if (respBatch.length) scopes.fullResp.renderSamples(respBatch);
-        }
+        if (ecg1Batch.length) scopes.fullEcg1.renderSamples(ecg1Batch);
+        if (ecg2Batch.length) scopes.fullEcg2.renderSamples(ecg2Batch);
+        if (plethBatch.length) scopes.fullPleth.renderSamples(plethBatch);
+        if (respBatch.length) scopes.fullResp.renderSamples(respBatch);
+      }
       }
 
       if (!AppState.demoMode && ecg1Batch.length > 1) {
