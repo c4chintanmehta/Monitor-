@@ -146,15 +146,25 @@
     <!-- Right: Compact Room Joiner, Hardware Controls & Clock -->
     <div class="flex items-center gap-2">
       <div class="hidden sm:flex items-center bg-blue-50/70 border border-blue-200 rounded-full px-2 py-1 gap-1.5">
-        <input id="inpQuickRoomCode" type="text" maxlength="8" placeholder="Room ID" class="w-16 bg-transparent font-mono-num text-[11px] uppercase font-bold text-[#0052a3] placeholder-slate-400 focus:outline-none px-1">
+        <input id="inpQuickRoomCode" type="text" maxlength="8" placeholder="WARD01" class="w-16 bg-transparent font-mono-num text-[11px] uppercase font-bold text-[#0052a3] placeholder-slate-400 focus:outline-none px-1">
         <select id="selQuickJoinRole" class="bg-white text-[10px] font-bold text-slate-700 rounded-full px-2 py-0.5 border border-blue-200 cursor-pointer focus:outline-none">
+          <option value="doctor">Monitor View</option>
           <option value="patient">Patient</option>
-          <option value="doctor">Doctor</option>
         </select>
         <button onclick="joinByRoomCode()" class="px-2.5 py-0.5 rounded-full bg-[#ff6b00] hover:bg-orange-600 text-white text-[10px] font-bold cursor-pointer transition shadow-xs">
           Join
         </button>
       </div>
+
+      <!-- Multi-PC Live Sync Status Pill -->
+      <div id="multiPcSyncPill" class="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-slate-100 border border-slate-200 text-slate-600">
+        <span id="multiPcSyncDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+        <span id="multiPcSyncText">SYNC: STANDBY</span>
+      </div>
+
+      <button id="btnBroadcastToggle" onclick="toggleBroadcasterMode()" title="Share this computer's monitor vitals & waves to all other computers" class="px-2.5 py-1.5 rounded-full text-xs font-bold border transition cursor-pointer bg-blue-50 border-blue-200 text-[#0052a3] hover:bg-blue-100">
+        Share Live
+      </button>
 
       <button id="btnToggleDemo" class="px-3 py-1.5 rounded-full text-xs font-bold border transition cursor-pointer bg-orange-50 border-orange-300 text-[#e05a00] hover:bg-orange-100">
         Demo: ON
@@ -162,7 +172,7 @@
 
       <button id="btnConnectSerial" class="px-3 py-1.5 rounded-full text-xs font-bold bg-[#0066cc] hover:bg-blue-700 text-white flex items-center gap-1.5 transition cursor-pointer shadow-sm">
         <span class="w-1.5 h-1.5 rounded-full bg-orange-300 animate-pulse"></span>
-        <span id="btnConnectText">Connect Monitor</span>
+        <span id="btnConnectText">Connect BT / USB</span>
       </button>
 
       <div class="hidden xl:flex flex-col items-end pl-2.5 border-l border-slate-200 font-mono-num leading-tight">
@@ -1330,17 +1340,29 @@
     const apiKey = ""; // Runtime-provided API key for Gemini calls
 
     // ----------------------------------------------------------------------------
-    // 1. GLOBAL APPLICATION & TELEMETRY STATE
+    // 1. GLOBAL APPLICATION STATE (STARTS CLEAN UNTIL CONSULTATION BEGINS)
     // ----------------------------------------------------------------------------
     const AppState = {
-      role: 'doctor', // 'doctor' | 'patient'
-      roomId: 'ML8841',
-      videoEngine: 'vdoninja', // 'vdoninja' | 'jitsi'
+      roomId: 'WARD01',
+      clientId: 'pc_' + Math.random().toString(36).slice(2, 10),
+      role: 'doctor',
       currentStage: 1,
+      videoEngine: 'vdoninja',
       monitorExpanded: false,
-      demoMode: true,
+      isBroadcaster: false,
       receivingRemoteVitals: false,
+      lastRemotePacketAt: 0,
+      txSeq: 0,
+      lastRxSeq: 0,
+      txWaveBuffer: { ecg1: [], ecg2: [], pleth: [], resp: [] },
+      hubPeer: null,
+      hubSubscribers: new Map(),
+      viewerPeer: null,
+      viewerConn: null,
+      viewerRetryTimer: null,
+      broadcastChan: null,
 
+      demoMode: true,
       serialConnected: false,
       port: null,
       reader: null,
@@ -1353,10 +1375,6 @@
       audioBeepEnabled: true,
       alarmMuted: false,
 
-      peer: null,
-      dataConn: null,
-      broadcastChan: null,
-
       patient: {
         doctorName: 'Dr. Meera Nair, MD',
         name: '',
@@ -1365,7 +1383,7 @@
         phone: '',
         mrn: '',
         bed: '',
-        type: 1, // 1=Adult, 2=Pediatric, 3=Neonate
+        type: 1,
         complaints: '',
         history: ''
       },
@@ -1373,18 +1391,17 @@
       vitals: {
         hr: 78,
         st: 0.02,
+        pvc: 0,
         ecgLeadOff: false,
         ecgWeakSignal: false,
         ecgGain: 3,
+        ecgFilter: 2,
         ecg1Lead: 'II',
         ecg2Lead: 'I',
         sweepSpeed: 25,
-
         spo2: 98,
         pr: 78,
         pi: 3.4,
-        spo2Status: 'OK',
-
         nibpSys: 122,
         nibpDia: 78,
         nibpMap: 93,
@@ -1392,7 +1409,6 @@
         nibpCuffPressure: 0,
         nibpStatus: 'READY',
         nibpIntervalTimer: null,
-
         resp: 16,
         temp1: 36.8,
         temp2: 36.6
@@ -1419,32 +1435,28 @@
       ecgHistoryBuffer: [],
       lastEcgAnalysis: {
         rhythm: 'Normal Sinus Rhythm',
-        icdCode: 'R94.31',
+        icdCode: 'R94.30',
         prMs: 156,
         qrsMs: 88,
         qtMs: 364,
         qtcMs: 412,
         regularity: 'Regular (98%)',
-        report: 'Regular P-waves preceding every narrow QRS complex (88 ms) at 78 bpm. PR interval (156 ms) and QTc interval (412 ms) are within normal physiological limits. Isoelectric ST segment (+0.02 mV) with no acute ischemic changes.',
-        recommendation: 'Continue continuous telemetry; correlate clinically.'
+        report: 'Regular P-waves preceding narrow QRS complexes at 78 bpm with normal intervals.',
+        recommendation: 'Continue routine telemetry monitoring.'
       },
 
-      history: [],
-
       media: {
+        callSeconds: 0,
         recording: false,
+        recSeconds: 0,
+        recTimer: null,
         micStream: null,
         mediaRecorder: null,
         audioChunks: [],
         audioUrl: null,
-        recSeconds: 0,
-        recTimer: null,
         recognition: null,
         recognitionRunning: false,
         speechLang: 'auto',
-        soapOutputMode: 'english',
-        autoLangCycleIdx: 0,
-        callSeconds: 0,
         transcript: []
       },
 
@@ -1452,13 +1464,10 @@
         diagnoses: [],
         labTests: [],
         medications: []
-      }
-    };
+      },
 
-    // ----------------------------------------------------------------------------
-    // 7. MULTILINGUAL LIVE MEETING RECORDER & STRUCTURED SOAP TRANSCRIPTION
-    // ----------------------------------------------------------------------------
-    const AUTO_LANG_ROTATION = ['en-IN', 'gu-IN', 'hi-IN'];
+      history: []
+    };
 
     function detectScriptLanguage(text) {
       if (/[\u0A80-\u0AFF]/.test(text)) return 'GU';
@@ -1467,38 +1476,37 @@
     }
 
     function onSpeechLanguageChange() {
-      const sel = document.getElementById('selSpeechLang').value;
-      AppState.media.speechLang = sel;
-      const labels = {
-        'auto': '[AUTO: EN/HI/GU]',
-        'gu-IN': '[ગુજરાતી gu-IN]',
-        'hi-IN': '[हिन्दी hi-IN]',
-        'en-IN': '[EN-IN]',
-        'en-US': '[EN-US]'
-      };
-      document.getElementById('activeLangTag').textContent = labels[sel] || '[AUTO]';
-
-      if (AppState.media.recording && AppState.media.recognition) {
-        const targetLang = sel === 'auto' ? 'en-IN' : sel;
-        AppState.media.recognition.lang = targetLang;
+      const sel = document.getElementById('selSpeechLang');
+      const tag = document.getElementById('activeLangTag');
+      if (!sel) return;
+      AppState.media.speechLang = sel.value;
+      const map = { 'auto': '[AUTO]', 'gu-IN': '[GU]', 'hi-IN': '[HI]', 'en-IN': '[EN-IN]', 'en-US': '[EN-US]' };
+      if (tag) tag.textContent = map[sel.value] || '[AUTO]';
+      if (AppState.media.recognition && AppState.media.recognitionRunning) {
         try { AppState.media.recognition.stop(); } catch (e) {}
       }
-      showToast(`Speech recognition language set to ${labels[sel]}`);
     }
+
     async function ensureMicrophoneStream() {
       if (AppState.media.micStream && AppState.media.micStream.active) {
         return AppState.media.micStream;
       }
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return null;
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      AppState.media.micStream = stream;
-      return stream;
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        return null;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        AppState.media.micStream = stream;
+        return stream;
+      } catch (e) {
+        return null;
+      }
     }
 
     async function startAudioRecording() {
+      const stream = await ensureMicrophoneStream();
+      if (!stream || typeof MediaRecorder === 'undefined') return;
       try {
-        const stream = await ensureMicrophoneStream();
-        if (!stream) return false;
         AppState.media.audioChunks = [];
         const recorder = new MediaRecorder(stream);
         recorder.ondataavailable = (e) => {
@@ -1509,20 +1517,16 @@
             const blob = new Blob(AppState.media.audioChunks, { type: 'audio/webm' });
             if (AppState.media.audioUrl) URL.revokeObjectURL(AppState.media.audioUrl);
             AppState.media.audioUrl = URL.createObjectURL(blob);
-
-            const quickLink = document.getElementById('btnDownloadAudioQuick');
-            if (quickLink) {
-              quickLink.href = AppState.media.audioUrl;
-              quickLink.classList.remove('hidden');
+            const quickDl = document.getElementById('btnDownloadAudioQuick');
+            if (quickDl) {
+              quickDl.href = AppState.media.audioUrl;
+              quickDl.classList.remove('hidden');
             }
           }
         };
         recorder.start(1000);
         AppState.media.mediaRecorder = recorder;
-        return true;
-      } catch (e) {
-        return false;
-      }
+      } catch (e) {}
     }
 
     function stopAudioRecording() {
@@ -2055,9 +2059,10 @@ ${rawTranscript}`;
       const pParam = params.get('p');
 
       if (roomParam) {
-        AppState.roomId = roomParam.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10) || 'ML8841';
+        AppState.roomId = roomParam.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10) || 'WARD01';
       } else {
-        AppState.roomId = 'ML' + Math.floor(1000 + Math.random() * 9000);
+        // Default shared channel so every computer opening this HTML file syncs automatically
+        AppState.roomId = 'WARD01';
       }
 
       if (pParam) decodePatientParam(pParam);
@@ -2258,106 +2263,344 @@ ${rawTranscript}`;
     }
 
     // ----------------------------------------------------------------------------
-    // 4. TELEMETRY DATA BRIDGE (PEERJS + BROADCASTCHANNEL FOR LIVE VITALS SYNC)
+    // 4. MULTI-COMPUTER LIVE TELEMETRY & WAVEFORM SYNC ENGINE
+    //    (CLOUD REAL-TIME SYNC + PEERJS MULTI-PC HUB + BROADCASTCHANNEL)
     // ----------------------------------------------------------------------------
+    function isSandboxedPreviewOrigin() {
+      return (
+        window.location.protocol === 'blob:' ||
+        window.location.protocol === 'about:' ||
+        window.location.origin === 'null' ||
+        window.location.hostname.includes('usercontent.goog') ||
+        window.location.hostname.includes('webcontainer')
+      );
+    }
+
+    function updateMultiPcSyncBadge() {
+      const pill = document.getElementById('multiPcSyncPill');
+      const dot = document.getElementById('multiPcSyncDot');
+      const text = document.getElementById('multiPcSyncText');
+      const btn = document.getElementById('btnBroadcastToggle');
+      const srcBadge = document.getElementById('telemetrySourceBadge');
+
+      const peerCount = AppState.hubSubscribers.size;
+
+      if (AppState.isBroadcaster) {
+        if (pill) pill.className = 'hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-50 border border-emerald-300 text-emerald-700';
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-ping';
+        if (text) text.textContent = `HOST LIVE (${AppState.roomId}${peerCount > 0 ? ' • ' + peerCount + ' PCs' : ''})`;
+        if (btn) {
+          btn.textContent = 'Sharing: ON';
+          btn.className = 'px-2.5 py-1.5 rounded-full text-xs font-bold border transition cursor-pointer bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700';
+        }
+      } else if (AppState.receivingRemoteVitals) {
+        if (pill) pill.className = 'hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-orange-50 border border-orange-300 text-[#e05a00]';
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-[#ff6b00] animate-pulse';
+        if (text) text.textContent = `LIVE FROM MONITOR (${AppState.roomId})`;
+        if (btn) {
+          btn.textContent = 'Share Live';
+          btn.className = 'px-2.5 py-1.5 rounded-full text-xs font-bold border transition cursor-pointer bg-blue-50 border-blue-200 text-[#0052a3] hover:bg-blue-100';
+        }
+        if (srcBadge) {
+          srcBadge.textContent = 'REMOTE BT LIVE';
+          srcBadge.className = 'text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded bg-[#ff6b00] text-white';
+        }
+      } else {
+        if (pill) pill.className = 'hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-blue-50 border border-blue-200 text-[#0052a3]';
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-[#0066cc]';
+        if (text) text.textContent = `LISTENING (${AppState.roomId})`;
+        if (btn) {
+          btn.textContent = 'Share Live';
+          btn.className = 'px-2.5 py-1.5 rounded-full text-xs font-bold border transition cursor-pointer bg-blue-50 border-blue-200 text-[#0052a3] hover:bg-blue-100';
+        }
+      }
+    }
+
+    function setBroadcasterMode(enabled) {
+      AppState.isBroadcaster = enabled;
+      if (enabled) {
+        AppState.receivingRemoteVitals = false;
+        AppState.txWaveBuffer = { ecg1: [], ecg2: [], pleth: [], resp: [] };
+        startMultiPcHubHost();
+      } else {
+        stopMultiPcHubHost();
+        startMultiPcViewer();
+      }
+      updateMultiPcSyncBadge();
+    }
+
+    function toggleBroadcasterMode() {
+      setBroadcasterMode(!AppState.isBroadcaster);
+      showToast(
+        AppState.isBroadcaster
+          ? `Broadcasting live vitals & waveforms to all PCs on channel ${AppState.roomId}`
+          : `Switched to viewer mode — listening for live monitor on ${AppState.roomId}`
+      );
+    }
+
+    function stopMultiPcHubHost() {
+      AppState.hubSubscribers.forEach((conn) => {
+        try { conn.close(); } catch (e) {}
+      });
+      AppState.hubSubscribers.clear();
+      if (AppState.hubPeer) {
+        try { AppState.hubPeer.destroy(); } catch (e) {}
+        AppState.hubPeer = null;
+      }
+    }
+
+    function stopMultiPcViewer() {
+      if (AppState.viewerRetryTimer) {
+        clearInterval(AppState.viewerRetryTimer);
+        AppState.viewerRetryTimer = null;
+      }
+      if (AppState.viewerConn) {
+        try { AppState.viewerConn.close(); } catch (e) {}
+        AppState.viewerConn = null;
+      }
+      if (AppState.viewerPeer) {
+        try { AppState.viewerPeer.destroy(); } catch (e) {}
+        AppState.viewerPeer = null;
+      }
+    }
+
+    function startMultiPcHubHost() {
+      stopMultiPcViewer();
+      stopMultiPcHubHost();
+      if (typeof Peer === 'undefined' || isSandboxedPreviewOrigin()) return;
+
+      const hubId = `medlink-bt-hub-${AppState.roomId}`;
+      try {
+        const peer = new Peer(hubId, {
+          debug: 0,
+          config: {
+            iceServers: [
+              { urls: 'stun:stun.l.google.com:19302' },
+              { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+          }
+        });
+        AppState.hubPeer = peer;
+
+        peer.on('connection', (conn) => {
+          conn.on('open', () => {
+            AppState.hubSubscribers.set(conn.peer, conn);
+            updateMultiPcSyncBadge();
+          });
+          conn.on('data', (msg) => {
+            if (msg && msg.type === 'trigger_nibp') toggleNibpMeasurement();
+          });
+          conn.on('close', () => {
+            AppState.hubSubscribers.delete(conn.peer);
+            updateMultiPcSyncBadge();
+          });
+          conn.on('error', () => {
+            AppState.hubSubscribers.delete(conn.peer);
+            updateMultiPcSyncBadge();
+          });
+        });
+
+        peer.on('error', () => {
+          // Cloud sync and BroadcastChannel remain active
+        });
+      } catch (e) {}
+    }
+
+    function startMultiPcViewer() {
+      stopMultiPcViewer();
+      if (AppState.isBroadcaster || typeof Peer === 'undefined' || isSandboxedPreviewOrigin()) return;
+
+      const hubId = `medlink-bt-hub-${AppState.roomId}`;
+      try {
+        const peer = new Peer(`medlink-pc-${AppState.clientId}`, {
+          debug: 0,
+          config: {
+            iceServers: [
+              { urls: 'stun:stun.l.google.com:19302' },
+              { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+          }
+        });
+        AppState.viewerPeer = peer;
+
+        const connectToHub = () => {
+          if (!AppState.viewerPeer || AppState.viewerPeer.destroyed || AppState.isBroadcaster) return;
+          if (AppState.viewerConn && AppState.viewerConn.open) return;
+          try {
+            const conn = AppState.viewerPeer.connect(hubId, { reliable: false });
+            AppState.viewerConn = conn;
+            conn.on('data', (msg) => handleIncomingTelemetryMessage(msg));
+            conn.on('close', () => { AppState.viewerConn = null; });
+            conn.on('error', () => { AppState.viewerConn = null; });
+          } catch (e) {}
+        };
+
+        peer.on('open', () => {
+          connectToHub();
+          AppState.viewerRetryTimer = setInterval(connectToHub, 3500);
+        });
+
+        peer.on('error', () => {});
+      } catch (e) {}
+    }
+
     function initTelemetrySyncBridge() {
+      AppState.lastRxSeq = 0;
+      AppState.receivingRemoteVitals = false;
+
+      if (AppState.broadcastChan) {
+        try { AppState.broadcastChan.close(); } catch (e) {}
+      }
       try {
         AppState.broadcastChan = new BroadcastChannel(`medlink_telemetry_${AppState.roomId}`);
         AppState.broadcastChan.onmessage = (ev) => handleIncomingTelemetryMessage(ev.data);
       } catch (e) {}
 
-      if (typeof Peer === 'undefined') return;
-      if (AppState.peer) {
-        try { AppState.peer.destroy(); } catch (e) {}
+      if (window.MedLinkCloudSync && typeof window.MedLinkCloudSync.subscribe === 'function') {
+        window.MedLinkCloudSync.subscribe(AppState.roomId, (data) => {
+          handleIncomingTelemetryMessage(data);
+        });
       }
 
-      const myPeerId = `medlink-tele-${AppState.roomId}-${AppState.role}`;
-      const remotePeerId = AppState.role === 'doctor'
-        ? `medlink-tele-${AppState.roomId}-patient`
-        : `medlink-tele-${AppState.roomId}-doctor`;
-
-      const peer = new Peer(myPeerId, {
-        debug: 0,
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-          ]
-        }
-      });
-      AppState.peer = peer;
-
-      peer.on('open', () => {
-        tryConnectDataPeer(remotePeerId);
-      });
-
-      peer.on('connection', (conn) => {
-        setupTelemetryDataConn(conn);
-      });
-
-      peer.on('error', () => {
-        setTimeout(() => {
-          if (AppState.peer && !AppState.peer.destroyed && (!AppState.dataConn || !AppState.dataConn.open)) {
-            tryConnectDataPeer(remotePeerId);
-          }
-        }, 4500);
-      });
-    }
-
-    function tryConnectDataPeer(remotePeerId) {
-      if (!AppState.peer || AppState.peer.destroyed) return;
-      try {
-        const conn = AppState.peer.connect(remotePeerId, { reliable: true });
-        setupTelemetryDataConn(conn);
-      } catch (e) {}
-    }
-
-    function setupTelemetryDataConn(conn) {
-      AppState.dataConn = conn;
-      conn.on('data', (msg) => handleIncomingTelemetryMessage(msg));
+      if (AppState.isBroadcaster || AppState.serialConnected) {
+        startMultiPcHubHost();
+      } else {
+        startMultiPcViewer();
+      }
+      updateMultiPcSyncBadge();
     }
 
     function handleIncomingTelemetryMessage(msg) {
       if (!msg || typeof msg !== 'object') return;
-      if (msg.type === 'vitals' && AppState.role === 'doctor') {
-        AppState.receivingRemoteVitals = true;
-        Object.assign(AppState.vitals, msg.vitals);
-        const badge = document.getElementById('telemetrySourceBadge');
-        if (badge) {
-          badge.textContent = 'REMOTE LIVE';
-          badge.className = 'text-[9px] font-mono-num font-bold px-2 py-0.5 rounded-full bg-orange-100 text-[#e05a00] border border-orange-300';
+      if (msg.senderId === AppState.clientId) return;
+
+      if (msg.type === 'vitals_stream' || msg.type === 'vitals') {
+        if (AppState.isBroadcaster || AppState.serialConnected) return;
+        if (typeof msg.seq === 'number' && msg.seq <= AppState.lastRxSeq && (Date.now() - AppState.lastRemotePacketAt) < 5000) {
+          return;
         }
+        if (typeof msg.seq === 'number') AppState.lastRxSeq = msg.seq;
+
+        AppState.receivingRemoteVitals = true;
+        AppState.lastRemotePacketAt = Date.now();
+
+        if (msg.vitals) {
+          Object.assign(AppState.vitals, msg.vitals);
+        }
+
+        // Feed real-time remote waveforms directly into this computer's oscilloscope queues
+        if (msg.waves) {
+          if (Array.isArray(msg.waves.ecg1)) {
+            for (let i = 0; i < msg.waves.ecg1.length; i++) pushWaveSample('ecg1', msg.waves.ecg1[i], true);
+          }
+          if (Array.isArray(msg.waves.ecg2)) {
+            for (let i = 0; i < msg.waves.ecg2.length; i++) pushWaveSample('ecg2', msg.waves.ecg2[i], true);
+          }
+          if (Array.isArray(msg.waves.pleth)) {
+            for (let i = 0; i < msg.waves.pleth.length; i++) pushWaveSample('pleth', msg.waves.pleth[i], true);
+          }
+          if (Array.isArray(msg.waves.resp)) {
+            for (let i = 0; i < msg.waves.resp.length; i++) pushWaveSample('resp', msg.waves.resp[i], true);
+          }
+        }
+
         updateAllVitalsUI();
+        updateMultiPcSyncBadge();
       } else if (msg.type === 'trigger_nibp') {
         toggleNibpMeasurement();
       }
     }
 
+    function buildLiveBroadcastPacket() {
+      AppState.txSeq++;
+      const waves = {
+        ecg1: AppState.txWaveBuffer.ecg1.splice(0, AppState.txWaveBuffer.ecg1.length),
+        ecg2: AppState.txWaveBuffer.ecg2.splice(0, AppState.txWaveBuffer.ecg2.length),
+        pleth: AppState.txWaveBuffer.pleth.splice(0, AppState.txWaveBuffer.pleth.length),
+        resp: AppState.txWaveBuffer.resp.splice(0, AppState.txWaveBuffer.resp.length)
+      };
+
+      return {
+        type: 'vitals_stream',
+        senderId: AppState.clientId,
+        seq: AppState.txSeq,
+        ts: Date.now(),
+        source: AppState.serialConnected ? 'BT_SERIAL' : 'DEMO',
+        vitals: {
+          hr: AppState.vitals.hr,
+          st: AppState.vitals.st,
+          ecgLeadOff: AppState.vitals.ecgLeadOff,
+          ecgWeakSignal: AppState.vitals.ecgWeakSignal,
+          spo2: AppState.vitals.spo2,
+          pr: AppState.vitals.pr,
+          pi: AppState.vitals.pi,
+          nibpSys: AppState.vitals.nibpSys,
+          nibpDia: AppState.vitals.nibpDia,
+          nibpMap: AppState.vitals.nibpMap,
+          nibpMeasuring: AppState.vitals.nibpMeasuring,
+          nibpCuffPressure: AppState.vitals.nibpCuffPressure,
+          nibpStatus: AppState.vitals.nibpStatus,
+          resp: AppState.vitals.resp,
+          temp1: AppState.vitals.temp1,
+          temp2: AppState.vitals.temp2
+        },
+        waves
+      };
+    }
+
+    // High-frequency real-time telemetry & waveform broadcaster (~8 packets/sec for PeerJS/Tabs, ~4/sec for Cloud)
+    let cloudPublishCounter = 0;
+    let pendingCloudWaves = { ecg1: [], ecg2: [], pleth: [], resp: [] };
+
     setInterval(() => {
-      if (AppState.role === 'patient') {
-        const payload = {
-          type: 'vitals',
-          vitals: {
-            hr: AppState.vitals.hr,
-            st: AppState.vitals.st,
-            spo2: AppState.vitals.spo2,
-            pr: AppState.vitals.pr,
-            pi: AppState.vitals.pi,
-            nibpSys: AppState.vitals.nibpSys,
-            nibpDia: AppState.vitals.nibpDia,
-            nibpMap: AppState.vitals.nibpMap,
-            nibpMeasuring: AppState.vitals.nibpMeasuring,
-            nibpCuffPressure: AppState.vitals.nibpCuffPressure,
-            nibpStatus: AppState.vitals.nibpStatus,
-            resp: AppState.vitals.resp,
-            temp1: AppState.vitals.temp1,
-            temp2: AppState.vitals.temp2
+      const shouldBroadcast = AppState.serialConnected || AppState.isBroadcaster || AppState.role === 'patient';
+      if (shouldBroadcast) {
+        const packet = buildLiveBroadcastPacket();
+
+        // 1. Same-browser multi-tab instant broadcast
+        if (AppState.broadcastChan) {
+          try { AppState.broadcastChan.postMessage(packet); } catch (e) {}
+        }
+
+        // 2. PeerJS multi-computer hub broadcast to all connected PCs
+        AppState.hubSubscribers.forEach((conn, peerId) => {
+          if (conn && conn.open) {
+            try { conn.send(packet); } catch (e) {}
+          } else {
+            AppState.hubSubscribers.delete(peerId);
           }
-        };
-        if (AppState.dataConn && AppState.dataConn.open) AppState.dataConn.send(payload);
-        if (AppState.broadcastChan) AppState.broadcastChan.postMessage(payload);
+        });
+
+        // 3. Cloud Real-Time Sync (batched every ~240ms for smooth cross-network streaming)
+        pendingCloudWaves.ecg1.push(...packet.waves.ecg1);
+        pendingCloudWaves.ecg2.push(...packet.waves.ecg2);
+        pendingCloudWaves.pleth.push(...packet.waves.pleth);
+        pendingCloudWaves.resp.push(...packet.waves.resp);
+        cloudPublishCounter++;
+
+        if (cloudPublishCounter >= 2) {
+          cloudPublishCounter = 0;
+          const cloudPacket = {
+            ...packet,
+            waves: {
+              ecg1: pendingCloudWaves.ecg1.splice(0, 120),
+              ecg2: pendingCloudWaves.ecg2.splice(0, 120),
+              pleth: pendingCloudWaves.pleth.splice(0, 40),
+              resp: pendingCloudWaves.resp.splice(0, 40)
+            }
+          };
+          pendingCloudWaves = { ecg1: [], ecg2: [], pleth: [], resp: [] };
+          if (window.MedLinkCloudSync && typeof window.MedLinkCloudSync.publish === 'function') {
+            window.MedLinkCloudSync.publish(AppState.roomId, cloudPacket);
+          }
+        }
+      } else if (AppState.receivingRemoteVitals && (Date.now() - AppState.lastRemotePacketAt) > 4500) {
+        // Remote monitor went offline
+        AppState.receivingRemoteVitals = false;
+        updateHardwareBadges();
+        updateMultiPcSyncBadge();
       }
-    }, 550);
+    }, 125);
 
     // ----------------------------------------------------------------------------
     // 5. STAGE NAVIGATION & FULL VITAL MONITOR EXPANSION CONTROLLER
@@ -2762,7 +3005,7 @@ ${rawTranscript}`;
       }
     }
 
-    function pushWaveSample(channel, val) {
+    function pushWaveSample(channel, val, fromRemote = false) {
       if (AppState.frozen) return;
       const q = AppState.waveQueues[channel];
       q.push(val);
@@ -2772,6 +3015,15 @@ ${rawTranscript}`;
         AppState.ecgHistoryBuffer.push(val);
         if (AppState.ecgHistoryBuffer.length > 1000) {
           AppState.ecgHistoryBuffer.shift();
+        }
+      }
+
+      // Queue live hardware/host waveform samples for multi-computer streaming
+      if (!fromRemote && (AppState.serialConnected || AppState.isBroadcaster || AppState.role === 'patient')) {
+        const txBuf = AppState.txWaveBuffer[channel];
+        if (txBuf) {
+          txBuf.push(Math.round(val));
+          if (txBuf.length > 180) txBuf.splice(0, txBuf.length - 120);
         }
       }
     }
@@ -2807,8 +3059,9 @@ ${rawTranscript}`;
         AppState.writer = port.writable.getWriter();
 
         setDemoMode(false);
+        setBroadcasterMode(true);
         updateHardwareBadges();
-        showToast('Connected to Vital Monitor at 115200 baud');
+        showToast(`BT/USB Monitor connected & broadcasting live to all PCs on ${AppState.roomId}`);
 
         readSerialLoop();
         setTimeout(() => sendInitSequence(), 250);
@@ -2855,6 +3108,7 @@ ${rawTranscript}`;
       } catch (e) {}
 
       AppState.serialConnected = false;
+      setBroadcasterMode(false);
       updateHardwareBadges();
       showToast('Disconnected from Vital Monitor');
     }
@@ -2925,7 +3179,8 @@ ${rawTranscript}`;
     }
 
     function stepSimulation(nowMs) {
-      if (!AppState.demoMode || AppState.frozen) {
+      // Do not generate simulated waves if paused, demo is off, or receiving live remote monitor waves
+      if (!AppState.demoMode || AppState.frozen || AppState.receivingRemoteVitals) {
         simLastTick = nowMs;
         return;
       }
@@ -3443,16 +3698,18 @@ ${rawTranscript}`;
       const s1Status = document.getElementById('stage1HwStatus');
       const srcBadge = document.getElementById('telemetrySourceBadge');
       if (AppState.serialConnected) {
-        btnText.textContent = 'Monitor Online';
-        if (s1Status) { s1Status.textContent = 'HARDWARE CONNECTED'; s1Status.className = 'font-mono-num font-extrabold text-emerald-600 mt-0.5'; }
-        if (srcBadge) { srcBadge.textContent = 'COM/BT LIVE'; srcBadge.className = 'text-[9px] font-mono-num font-bold px-2 py-0.5 rounded-full bg-orange-100 text-[#e05a00] border border-orange-300'; }
+        btnText.textContent = 'BT/USB Live';
+        if (s1Status) { s1Status.textContent = 'HARDWARE CONNECTED (BROADCASTING)'; s1Status.className = 'font-mono-num font-extrabold text-emerald-600 mt-0.5'; }
+        if (srcBadge) { srcBadge.textContent = 'BT/COM HOST'; srcBadge.className = 'text-[9px] font-mono-num font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white'; }
       } else {
-        btnText.textContent = 'Connect Monitor';
-        if (s1Status) { s1Status.textContent = AppState.demoMode ? 'SIMULATION ACTIVE' : 'STANDBY'; s1Status.className = 'font-mono-num font-extrabold text-[#0066cc] mt-0.5'; }
+        btnText.textContent = 'Connect BT / USB';
+        if (s1Status) { s1Status.textContent = AppState.receivingRemoteVitals ? 'RECEIVING REMOTE BT MONITOR' : (AppState.demoMode ? 'SIMULATION ACTIVE' : 'STANDBY'); s1Status.className = 'font-mono-num font-extrabold text-[#0066cc] mt-0.5'; }
         if (srcBadge && !AppState.receivingRemoteVitals) {
           srcBadge.textContent = AppState.demoMode ? 'SIM' : 'OFFLINE';
+          srcBadge.className = 'text-[9px] font-mono-num font-bold px-1.5 py-0.5 rounded bg-[#0066cc] text-white';
         }
       }
+      updateMultiPcSyncBadge();
     }
 
     // ----------------------------------------------------------------------------
@@ -4000,9 +4257,8 @@ SOAP: S: ${soap.s} | O: ${soap.o} | A: ${soap.a}`;
         if (plethBatch.length) scopes.fullPleth.renderSamples(plethBatch);
         if (respBatch.length) scopes.fullResp.renderSamples(respBatch);
       }
-      }
 
-      if (!AppState.demoMode && ecg1Batch.length > 1) {
+      if ((!AppState.demoMode || AppState.receivingRemoteVitals) && ecg1Batch.length > 1) {
         for (let i = 1; i < ecg1Batch.length; i++) {
           if (ecg1Batch[i - 1] <= 185 && ecg1Batch[i] > 185) {
             onRWaveDetected();
@@ -4041,6 +4297,95 @@ SOAP: S: ${soap.s} | O: ${soap.o} | A: ${soap.a}`;
       resizeAllScopes();
       requestAnimationFrame(animationLoop);
     };
+  </script>
+
+  <!-- Real-Time Multi-Computer Cloud Telemetry Sync Module -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'medlink-telecare';
+    let db = null;
+    let currentUser = null;
+    let activeUnsubscribe = null;
+    let pendingSubscribeArgs = null;
+    let isPublishing = false;
+
+    async function initCloudSync() {
+      if (typeof __firebase_config === 'undefined' || !__firebase_config) return;
+      try {
+        const firebaseConfig = typeof __firebase_config === 'string'
+          ? JSON.parse(__firebase_config)
+          : __firebase_config;
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        db = getFirestore(app);
+
+        // Rule 3: Authenticate BEFORE any database read/write
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          const cred = await signInWithCustomToken(auth, __initial_auth_token);
+          currentUser = cred.user;
+        } else {
+          const cred = await signInAnonymously(auth);
+          currentUser = cred.user;
+        }
+
+        if (pendingSubscribeArgs && currentUser) {
+          subscribeRoom(pendingSubscribeArgs.roomId, pendingSubscribeArgs.cb);
+        }
+      } catch (err) {
+        console.warn('Cloud sync initialization skipped:', err?.message || err);
+      }
+    }
+
+    function subscribeRoom(roomId, onMessage) {
+      pendingSubscribeArgs = { roomId, cb: onMessage };
+      if (!db || !currentUser || !roomId) return;
+
+      if (activeUnsubscribe) {
+        try { activeUnsubscribe(); } catch (e) {}
+        activeUnsubscribe = null;
+      }
+
+      // Rule 1: Strict public path /artifacts/{appId}/public/data/{collectionName}/{docId}
+      const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'telemetry_rooms', roomId);
+      activeUnsubscribe = onSnapshot(
+        roomRef,
+        (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            if (data && typeof onMessage === 'function') {
+              onMessage(data);
+            }
+          }
+        },
+        (err) => {
+          console.warn('Cloud telemetry listener error:', err?.message || err);
+        }
+      );
+    }
+
+    async function publishRoom(roomId, packet) {
+      if (!db || !currentUser || !roomId || isPublishing) return;
+      isPublishing = true;
+      try {
+        const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'telemetry_rooms', roomId);
+        await setDoc(roomRef, packet);
+      } catch (err) {
+        // Ignore transient network write errors during high-frequency streaming
+      } finally {
+        isPublishing = false;
+      }
+    }
+
+    window.MedLinkCloudSync = {
+      subscribe: subscribeRoom,
+      publish: publishRoom
+    };
+
+    initCloudSync();
   </script>
 </body>
 </html>
